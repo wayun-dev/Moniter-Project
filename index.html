@@ -3,357 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Management Dashboard</title>
-    <!-- Tailwind CSS สำหรับการจัดการ Layout และความสวยงาม -->
+    <title>Project Master Dashboard</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PapaParse สำหรับการประมวลผลไฟล์ CSV -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <!-- Lucide Icons สำหรับไอคอนที่ทันสมัย -->
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+    <!-- Google Fonts: Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Kanit', sans-serif;
-            background-color: #f8fafc;
-        }
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .vertical-top { vertical-align: top; }
     </style>
 </head>
-<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+<body class="text-slate-900">
 
-    <!-- ส่วนหัว (Header) -->
-    <header class="bg-white border-b border-slate-200 shadow-sm z-10 flex-none">
-        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div id="app">
+        <!-- Navigation -->
+        <nav class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
-                    <div class="bg-red-600 text-white p-2.5 rounded-xl shadow-md">
-                        <i data-lucide="monitor-play" class="w-6 h-6"></i>
+                    <div class="bg-slate-900 text-white p-2 rounded-xl">
+                        <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold text-slate-900 leading-tight">Project Overview</h1>
-                        <p class="text-sm text-slate-500 font-medium">ระบบติดตามสถานะโครงการ (TV Dashboard)</p>
+                        <h1 class="text-xl font-extrabold text-slate-900 leading-tight">Project Master Dashboard</h1>
+                        <p class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Real-time Project Tracking</p>
                     </div>
                 </div>
-                
-                <div class="flex items-center gap-3 w-full md:w-auto">
-                    <!-- ช่องค้นหา -->
-                    <div class="relative w-full md:w-64">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="h-4 w-4 text-slate-400"></i>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="h-4 w-4 text-slate-400"></i>
+                    </div>
+                    <input type="text" id="searchInput" placeholder="ค้นหาชื่องาน หรือ BU..." class="block w-full md:w-80 pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                </div>
+            </div>
+        </nav>
+
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-black uppercase text-slate-400 mb-1">งานทั้งหมด</p>
+                            <p id="totalTasks" class="text-3xl font-black text-indigo-600">0</p>
                         </div>
-                        <input type="text" id="searchInput" placeholder="ค้นหาชื่องาน หรือแผนก..." class="block w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-slate-50 focus:bg-white transition-colors" />
-                    </div>
-                    
-                    <!-- ปุ่มอัปโหลดไฟล์ CSV -->
-                    <label for="csvUpload" class="cursor-pointer flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm whitespace-nowrap">
-                        <i data-lucide="upload" class="w-4 h-4"></i>
-                        อัปโหลดไฟล์ CSV
-                    </label>
-                    <input type="file" id="csvUpload" accept=".csv" class="hidden" />
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- ส่วนเนื้อหาหลัก -->
-    <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 fade-in" id="mainContainer">
-        <div class="max-w-[1600px] mx-auto">
-            
-            <!-- การแสดงสถิติ (Stats Cards) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">งานทั้งหมด</p>
-                        <p class="text-2xl font-bold text-slate-900 mt-1" id="statTotal">0</p>
-                    </div>
-                    <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
-                        <i data-lucide="layers" class="w-5 h-5"></i>
+                        <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                            <i data-lucide="briefcase" class="w-6 h-6"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">กำลังดำเนินการ</p>
-                        <p class="text-2xl font-bold text-amber-600 mt-1" id="statProgress">0</p>
-                    </div>
-                    <div class="w-10 h-10 bg-amber-50 rounded-full flex items-center justify-center text-amber-500">
-                        <i data-lucide="clock" class="w-5 h-5"></i>
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-black uppercase text-slate-400 mb-1">กำลังดำเนินการ</p>
+                            <p id="pendingTasks" class="text-3xl font-black text-amber-600">0</p>
+                        </div>
+                        <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                            <i data-lucide="clock" class="w-6 h-6"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">เสร็จสมบูรณ์</p>
-                        <p class="text-2xl font-bold text-emerald-600 mt-1" id="statDone">0</p>
-                    </div>
-                    <div class="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500">
-                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-xs font-black uppercase text-slate-400 mb-1">เสร็จสิ้น</p>
+                            <p id="doneTasks" class="text-3xl font-black text-emerald-600">0</p>
+                        </div>
+                        <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                            <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- แถบเลือกโครงการ (Tabs) -->
-            <div class="mb-6 flex overflow-x-auto hide-scrollbar border-b border-slate-200" id="tabsContainer">
-                <!-- รายการ Tabs จะถูกสร้างด้วย JavaScript -->
+            <!-- Tabs Navigation -->
+            <div id="tabsContainer" class="flex items-center gap-2 mb-8 overflow-x-auto pb-2 hide-scrollbar">
+                <!-- Tabs will be rendered by JS -->
             </div>
 
-            <!-- ส่วนแสดงผลข้อมูล -->
-            <div id="contentViewer">
-                <!-- ข้อมูลตารางหรือ Grid จะถูกแสดงที่นี่ -->
+            <!-- Table Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-12">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100">
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Project / BU</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Task Details</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Next Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskTableBody" class="divide-y divide-slate-50">
+                            <!-- Tasks will be rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script>
-        // ข้อมูลเริ่มต้นสำหรับแสดงผลครั้งแรก
-        let rawData = [
-            { id: 1, parentProject: "1. LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY", detail: "จัดทำแผนการสร้าง COMMUNITY ทั้ง Online/Offline ใครรับผิดชอบส่วนไหน", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "รอสรุปทีมงานหลัก" },
-            { id: 2, parentProject: "1. LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book", detail: "รอทีม We Compound ปรับปรุงตามคอมเมนต์", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "รองานจากทีมดีไซน์" },
-            { id: 3, parentProject: "1. LOTTERY PLUS", bu: "MKT Structure", task: "โครงสร้างทีมการตลาดใหม่", detail: "จัดทำ JD และประกาศรับสมัครคนเพิ่ม", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "นัดสัมภาษณ์สัปดาห์หน้า" },
-            { id: 9, parentProject: "1. LOTTERY PLUS", bu: "The Next Gen", task: "โปรแกรมพัฒนาบุคลากร", detail: "ค่ายพัฒนาทักษะพนักงาน 24-26 ก.พ. 69", statusIcon: "🟢", statusText: "DONE (ตามแผน)", nextStep: "-" },
-            { id: 10, parentProject: "2. MU TODAY", bu: "Partner", task: "หาหมอดูพาร์ทเนอร์", detail: "นัดคุยเรื่องส่วนแบ่งรายได้และระบบ", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "นัดคุยบ่ายวันพุธ" },
-            { id: 13, parentProject: "3. CHECKIN PLUS", bu: "CIP Update", task: "Sale Support", detail: "รับสมัคร Sale Support 4 ตำแหน่ง", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "รอ HR คัดกรองใบสมัคร" }
+        // ข้อมูลจาก CSV ที่แปลงมา
+        const rawData = [
+            { id: 1, parentProject: "1. LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY Online/Offline", detail: "การที่จะทำให้ COMMUNITY FIRST ทำยังไง มีกี่แบบ อะไรบ้าง และในแต่ละแบบทำยังไงแบบเป็นขั้นเป็นตอน ใครรับผิดชอบ", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "รอ Team Event และ CMO อัพเดทแผน Build Community" },
+            { id: 2, parentProject: "1. LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book", detail: "รอทางทีม We Compound Brand ปรับปรุงจาก Comment", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "รอทางทีม We Compound Book คิว" },
+            { id: 3, parentProject: "1. LOTTERY PLUS", bu: "MKT Structure", task: "อนุมัติแผนโครงสร้างทีมใหม่", detail: "CEO อนุมัติแล้ว ประสาน HR ทำ JD และสรรหาคนเพิ่ม", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "-" },
+            { id: 4, parentProject: "1. LOTTERY PLUS", bu: "Event: Happy bus", task: "กิจกรรมรถบัสความสุข (Happy Bus)", detail: "สื่อสารถึงลูกค้าและ รอรวบรวมยอดทั้งหมด", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "ตอนนี้ได้ 400/500 และมีการขยายเวลาลงทะเบียนแล้ว" },
+            { id: 5, parentProject: "1. LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", detail: "สรุปงบประมาณและรายละเอียดกิจกรรมทั้งหมด และรอคุยกับทาง MONO", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "MONO จะปรับ Road map และ สรุป Requirement ตามที่ทีมและ CEO Approve" },
+            { id: 6, parentProject: "1. LOTTERY PLUS", bu: "Event: Racing Project", task: "Agenda วันซ้อม/วันแข่ง", detail: "อยู่ในกระบวนการ ซ้อมตาม Calendar", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "-" },
+            { id: 7, parentProject: "1. LOTTERY PLUS", bu: "NOKPLUSCLUB", task: "ทบทวนชื่อ NOKPLUS CLUB และ Feature", detail: "MVP 1 & 2 และ Timeline มาแล้ว", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "CEO ให้รวม MVP 1 & 2 ปล่อยพร้อมกันไม่เกิน ต.ค. (ทีมกำลังสรุป Feature)" },
+            { id: 8, parentProject: "1. LOTTERY PLUS", bu: "Production", task: "นำเสนอ 3 รายการ Youtube", detail: "ตุ๊ดลองของ, โต๊ะหมูบูชา, Hope Land (ขึ้น DEMO ทุกรายการ)", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "Post ลง Social Media ของ Lottery Plus เรียบร้อยแล้ว" },
+            { id: 9, parentProject: "1. LOTTERY PLUS", bu: "The Next Gen", task: "โปรแกรมพัฒนาบุคลากร", detail: "Camp: 24-26 ก.พ. 69", statusIcon: "🟢", statusText: "DONE", nextStep: "รอ BrandBook" },
+            { id: 10, parentProject: "1. LOTTERY PLUS", bu: "HR Team", task: "สรุปแผนโครงสร้างทีม", detail: "รอนัดครั้งถัดไป", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "ต้องการการ Training พนักงานใหม่และเก่า" },
+            { id: 11, parentProject: "2. MU TODAY", bu: "MU TODAY Community", task: "หาหมอดู Partner ระยะยาว", detail: "พัฒนา Feature ร่วมกับหมอดู Partner", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "นัดคุย Partnership Model" },
+            { id: 12, parentProject: "2. MU TODAY", bu: "ปรับ DIRECTION", task: "เน้น PARTNER FIRST", detail: "หยุดโฟกัส Community ชั่วคราวเพื่อให้ Partner ดึง Community เข้ามาเอง", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "Focus Partnership! Support Production + Content" },
+            { id: 13, parentProject: "2. MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูล AI", detail: "พัฒนา AI ต่อและทำ Content on Social", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "หา Creative และ Tiktok" },
+            { id: 14, parentProject: "3. CHECKIN PLUS", bu: "CIP Update", task: "Sale Support & ระบบชำระเงิน", detail: "อนุมัติ Sale Support 4 ตำแหน่ง และทำระบบชำระบัตรเครดิต", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "Checkin Book (BETA) ขึ้น Web ปลาย มี.ค." },
+            { id: 15, parentProject: "4. THAIMART", bu: "Business Model", task: "Concept 'THAIMART = TRUST'", detail: "สรุป Business Model และทิศทางแบรนด์", statusIcon: "🟡", statusText: "กำลังดำเนินการ", nextStep: "Timeline: Web Beta (เม.ย.) / App (พ.ค.)" }
         ];
 
-        let activeTab = "TV_VIEW";
+        let activeTab = "All Projects";
         let searchQuery = "";
 
-        // เมื่อหน้าจอโหลดเสร็จ
-        document.addEventListener("DOMContentLoaded", () => {
-            lucide.createIcons();
-            renderApp();
+        const projectsList = ["All Projects", "1. LOTTERY PLUS", "2. MU TODAY", "3. CHECKIN PLUS", "4. THAIMART"];
 
-            // จัดการการค้นหา
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                searchQuery = e.target.value.toLowerCase();
-                renderApp();
+        function getProjectColor(name) {
+            if (name.includes("1")) return "bg-red-500";
+            if (name.includes("2")) return "bg-purple-500";
+            if (name.includes("3")) return "bg-blue-500";
+            if (name.includes("4")) return "bg-emerald-500";
+            return "bg-slate-500";
+        }
+
+        function render() {
+            // Filter Data
+            const filtered = rawData.filter(item => {
+                const matchTab = activeTab === "All Projects" || item.parentProject === activeTab;
+                const s = searchQuery.toLowerCase();
+                const matchSearch = item.bu.toLowerCase().includes(s) || item.task.toLowerCase().includes(s) || item.detail.toLowerCase().includes(s);
+                return matchTab && matchSearch;
             });
 
-            // จัดการการอัปโหลด CSV
-            document.getElementById('csvUpload').addEventListener('change', handleCSVUpload);
+            // Update Stats
+            document.getElementById('totalTasks').innerText = filtered.length;
+            document.getElementById('pendingTasks').innerText = filtered.filter(d => d.statusIcon === "🟡").length;
+            document.getElementById('doneTasks').innerText = filtered.filter(d => d.statusIcon === "🟢").length;
+
+            // Render Tabs
+            const tabsContainer = document.getElementById('tabsContainer');
+            tabsContainer.innerHTML = projectsList.map(p => `
+                <button onclick="setActiveTab('${p}')" class="px-5 py-2.5 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${activeTab === p ? 'bg-slate-900 text-white shadow-lg scale-105' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-400'}">
+                    ${p === 'All Projects' ? 'ภาพรวมทั้งหมด' : p}
+                </button>
+            `).join('');
+
+            // Render Table
+            const tbody = document.getElementById('taskTableBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-20 text-center text-slate-400 font-bold">ไม่พบข้อมูลที่ค้นหา</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(row => `
+                    <tr class="group hover:bg-indigo-50/30 transition-colors">
+                        <td class="px-6 py-6 vertical-top min-w-[200px]">
+                            <div class="flex flex-col gap-2">
+                                <span class="inline-block w-fit px-2 py-0.5 rounded text-[9px] font-black text-white ${getProjectColor(row.parentProject)}">${row.parentProject}</span>
+                                <span class="font-bold text-slate-900 text-sm">${row.bu}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-6 max-w-md">
+                            <div class="font-bold text-slate-800 text-sm mb-1 group-hover:text-indigo-600 transition-colors">${row.task}</div>
+                            <p class="text-xs text-slate-500 leading-relaxed">${row.detail}</p>
+                        </td>
+                        <td class="px-6 py-6">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${row.statusIcon === '🟢' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-700 border-amber-200'} border">
+                                <i data-lucide="${row.statusIcon === '🟢' ? 'check-circle-2' : 'clock'}" class="w-3.5 h-3.5"></i>
+                                ${row.statusText}
+                            </span>
+                        </td>
+                        <td class="px-6 py-6 max-w-xs">
+                            ${row.nextStep && row.nextStep !== '-' ? `
+                                <div class="bg-slate-50 group-hover:bg-white p-3 rounded-xl border border-slate-100 flex gap-2">
+                                    <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-indigo-500 mt-0.5 flex-shrink-0"></i>
+                                    <span class="text-xs font-semibold text-slate-600 leading-snug">${row.nextStep}</span>
+                                </div>
+                            ` : '<span class="text-slate-300 text-xs italic">ไม่มีข้อมูล</span>'}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            // Re-initialize icons
+            lucide.createIcons();
+        }
+
+        function setActiveTab(tab) { activeTab = tab; render(); }
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            render();
         });
 
-        // ฟังก์ชันจัดการแท็บ
-        function getUniqueProjects() {
-            const projects = new Set(rawData.map(item => item.parentProject));
-            return Array.from(projects).sort();
-        }
-
-        function setActiveTab(tab) {
-            activeTab = tab;
-            renderApp();
-        }
-
-        // ฟังก์ชันหลักในการแสดงผลหน้าจอ
-        function renderApp() {
-            const projects = getUniqueProjects();
-            
-            // กรองข้อมูลตามแท็บที่เลือกและคำค้นหา
-            const filteredData = rawData.filter((item) => {
-                const matchProject = activeTab === "TV_VIEW" || activeTab === "ALL_TABLE" || item.parentProject === activeTab;
-                const matchSearch = 
-                    (item.bu && item.bu.toLowerCase().includes(searchQuery)) ||
-                    (item.task && item.task.toLowerCase().includes(searchQuery)) ||
-                    (item.detail && item.detail.toLowerCase().includes(searchQuery));
-                return matchProject && matchSearch;
-            });
-
-            // อัปเดตตัวเลขสถิติ
-            const completed = filteredData.filter(i => i.statusIcon === "🟢").length;
-            document.getElementById('statTotal').innerText = filteredData.length;
-            document.getElementById('statProgress').innerText = filteredData.length - completed;
-            document.getElementById('statDone').innerText = completed;
-
-            // สร้างส่วนของ Tabs
-            const tabsHtml = `
-                <button onclick="setActiveTab('TV_VIEW')" class="whitespace-nowrap flex items-center gap-2 py-3 px-4 border-b-2 font-medium text-sm transition-colors ${activeTab === 'TV_VIEW' ? 'border-red-600 text-red-600' : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'}">
-                    <i data-lucide="monitor" class="w-4 h-4"></i> TV View
-                </button>
-                <button onclick="setActiveTab('ALL_TABLE')" class="whitespace-nowrap flex items-center gap-2 py-3 px-4 border-b-2 font-medium text-sm transition-colors ${activeTab === 'ALL_TABLE' ? 'border-red-600 text-red-600' : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'}">
-                    <i data-lucide="table-2" class="w-4 h-4"></i> ตารางทั้งหมด
-                </button>
-                ${projects.map(p => `
-                    <button onclick="setActiveTab('${p}')" class="whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm transition-colors ${activeTab === p ? 'border-slate-800 text-slate-800' : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'}">
-                        ${p}
-                    </button>
-                `).join('')}
-            `;
-            document.getElementById('tabsContainer').innerHTML = tabsHtml;
-
-            // เลือกรูปแบบการแสดงผล (Grid หรือ Table)
-            const viewer = document.getElementById('contentViewer');
-            if (filteredData.length === 0) {
-                viewer.innerHTML = `
-                    <div class="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-500">
-                        <i data-lucide="filter-x" class="w-12 h-12 mx-auto text-slate-300 mb-4"></i>
-                        <p class="text-lg">ไม่พบข้อมูลที่คุณค้นหา</p>
-                    </div>`;
-            } else if (activeTab === "TV_VIEW") {
-                viewer.innerHTML = renderTVGrid(filteredData, projects);
-            } else {
-                viewer.innerHTML = renderTable(filteredData, activeTab === "ALL_TABLE");
-            }
-
-            lucide.createIcons();
-        }
-
-        // ส่วนประกอบ UI: Badge สถานะ
-        function getStatusBadge(icon, text) {
-            if (icon === "🟢") {
-                return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm"><i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> ${text || 'เสร็จสิ้น'}</span>`;
-            }
-            return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200 shadow-sm"><i data-lucide="clock" class="w-3.5 h-3.5"></i> ${text || 'รอดำเนินการ'}</span>`;
-        }
-
-        // แสดงผลแบบ Grid (เหมาะสำหรับจอ TV)
-        function renderTVGrid(data, allProjects) {
-            const grouped = {};
-            allProjects.forEach(p => grouped[p] = []);
-            data.forEach(item => {
-                if(grouped[item.parentProject]) grouped[item.parentProject].push(item);
-            });
-
-            let html = `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-start">`;
-            
-            Object.keys(grouped).forEach(project => {
-                if (grouped[project].length === 0) return;
-                
-                let colorClass = "bg-slate-700";
-                if(project.includes("1")) colorClass = "bg-red-600";
-                if(project.includes("2")) colorClass = "bg-purple-600";
-                if(project.includes("3")) colorClass = "bg-blue-600";
-
-                html += `
-                <div class="bg-slate-100 rounded-xl p-4 border border-slate-200">
-                    <div class="${colorClass} text-white px-4 py-3 rounded-lg shadow-md mb-4 flex items-center justify-between">
-                        <h2 class="font-bold text-lg">${project}</h2>
-                        <span class="bg-white/20 px-2 py-0.5 rounded text-xs">${grouped[project].length} งาน</span>
-                    </div>
-                    <div class="space-y-3">
-                        ${grouped[project].map(item => `
-                            <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200 relative overflow-hidden">
-                                <div class="absolute left-0 top-0 bottom-0 w-1 ${item.statusIcon === '🟢' ? 'bg-emerald-500' : 'bg-amber-400'}"></div>
-                                <div class="flex justify-between items-start mb-2">
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">${item.bu || '-'}</span>
-                                    ${getStatusBadge(item.statusIcon, item.statusText)}
-                                </div>
-                                <h3 class="font-bold text-slate-800 text-base mb-1">${item.task || '-'}</h3>
-                                <p class="text-xs text-slate-500 line-clamp-2">${item.detail || '-'}</p>
-                                ${item.nextStep ? `
-                                <div class="mt-3 pt-3 border-t border-slate-50 flex items-start gap-2 text-xs text-blue-700 font-medium">
-                                    <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5 mt-0.5"></i>
-                                    <span>${item.nextStep}</span>
-                                </div>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>`;
-            });
-            
-            html += `</div>`;
-            return html;
-        }
-
-        // แสดงผลแบบตาราง (เหมาะสำหรับจอ PC/แก้ไขข้อมูล)
-        function renderTable(data, showProjectCol) {
-            let trs = data.map(row => {
-                let projectBadge = "";
-                if (showProjectCol) {
-                    projectBadge = `<td class="px-4 py-4 text-xs font-bold text-slate-600">${row.parentProject}</td>`;
-                }
-
-                return `
-                <tr class="hover:bg-slate-50 border-b border-slate-100">
-                    ${projectBadge}
-                    <td class="px-4 py-4 text-sm font-semibold">${row.bu}</td>
-                    <td class="px-4 py-4 text-sm">${row.task || "-"}</td>
-                    <td class="px-4 py-4 text-sm text-slate-500">${row.detail || "-"}</td>
-                    <td class="px-4 py-4">${getStatusBadge(row.statusIcon, row.statusText)}</td>
-                    <td class="px-4 py-4 text-sm text-blue-600 font-medium">${row.nextStep || '-'}</td>
-                </tr>`;
-            }).join('');
-
-            return `
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <table class="min-w-full divide-y divide-slate-200 text-left">
-                    <thead class="bg-slate-50">
-                        <tr>
-                            ${showProjectCol ? `<th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Project</th>` : ''}
-                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Unit</th>
-                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Task</th>
-                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Detail</th>
-                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Status</th>
-                            <th class="px-4 py-3 text-xs font-bold text-slate-500 uppercase">Next Step</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">${trs}</tbody>
-                </table>
-            </div>`;
-        }
-
-        // ฟังก์ชันอัปโหลดและแปลงข้อมูล CSV
-        function handleCSVUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            Papa.parse(file, {
-                header: false,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    processCSV(results.data);
-                    e.target.value = ''; // ล้างค่า input
-                }
-            });
-        }
-
-        function processCSV(rows) {
-            let currentProject = "Unassigned Project";
-            let parsedData = [];
-            let startIndex = (rows[0] && rows[0].join('').includes('Unit')) ? 1 : 0;
-
-            for (let i = startIndex; i < rows.length; i++) {
-                let row = rows[i];
-                if (row[0] && (!row[1] || row[1].trim() === "")) {
-                    currentProject = row[0].trim();
-                    continue;
-                }
-                
-                let bu = row[0] || row[1] || "";
-                if (!bu && !row[2]) continue;
-
-                let isDone = row.join("").toLowerCase().includes("done") || row.join("").includes("🟢");
-
-                parsedData.push({
-                    id: Date.now() + i,
-                    parentProject: currentProject,
-                    bu: row[0] || "",
-                    task: row[1] || "",
-                    detail: row[2] || "",
-                    statusIcon: isDone ? "🟢" : "🟡",
-                    statusText: isDone ? "เสร็จสิ้น" : "กำลังดำเนินการ",
-                    nextStep: row[5] || row[4] || ""
-                });
-            }
-
-            if (parsedData.length > 0) {
-                rawData = parsedData;
-                activeTab = "TV_VIEW";
-                renderApp();
-            }
-        }
+        // Initial Load
+        window.onload = render;
     </script>
 </body>
 </html>
