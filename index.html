@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Dashboard - Auto Sorting by Progress</title>
+    <title>Project Dashboard - Branded Themes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
@@ -11,92 +11,170 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; overflow: hidden; height: 100vh; }
+        body { font-family: 'Kanit', sans-serif; background-color: #f1f5f9; overflow: hidden; height: 100vh; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .main-dashboard-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; height: calc(100vh - 110px); padding-bottom: 20px; }
-        .project-column { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 4px; }
-        .project-card { border-radius: 12px; padding: 14px; border-left: 8px solid; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); background-color: white; border-right: 1px solid #f1f5f9; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; transition: all 0.3s ease; }
-        .project-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .progress-bar-container { height: 10px; background-color: #f1f5f9; border-radius: 6px; overflow: hidden; margin-top: 6px; width: 100%; position: relative; }
-        .progress-fill { height: 100%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 6px; }
-        .filter-chip { cursor: pointer; transition: all 0.2s; }
-        .filter-chip.active { background-color: #1e293b; color: white; }
+        
+        .main-dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 20px; 
+            height: calc(100vh - 120px); 
+            padding-bottom: 20px; 
+        }
+
+        .project-column { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            overflow-y: auto; 
+            padding: 0 4px 20px 4px;
+            scroll-behavior: smooth;
+        }
+
+        .column-header-sticky {
+            position: sticky;
+            top: 0;
+            background: #f1f5f9;
+            z-index: 30;
+            padding: 10px 0;
+            margin-bottom: 4px;
+        }
+
+        .project-card { 
+            border-radius: 16px; 
+            overflow: hidden;
+            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08); 
+            background-color: white; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-card:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15); 
+        }
+
+        .card-header {
+            padding: 10px 14px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .progress-container { 
+            height: 10px; 
+            background-color: rgba(0,0,0,0.1); 
+            border-radius: 10px; 
+            overflow: hidden; 
+            width: 100%; 
+            position: relative;
+        }
+
+        .progress-bar { 
+            height: 100%; 
+            transition: width 1.5s ease-in-out; 
+            border-radius: 10px; 
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Theme Specifics */
+        .theme-lottery { background-color: rgba(239, 68, 68, 0.08); } 
+        .bg-lottery { background-color: #ef4444; }
+        .text-lottery { color: #b91c1c; }
+
+        .theme-mu { background-color: rgba(168, 85, 247, 0.08); } 
+        .bg-mu { background-color: #a855f7; }
+        .text-mu { color: #7e22ce; }
+
+        .theme-checkin { background-color: rgba(234, 179, 8, 0.08); } 
+        .bg-checkin { background-color: #eab308; }
+        .text-checkin { color: #854d0e; }
+
+        .theme-thaimart { background-color: rgba(59, 130, 246, 0.08); } 
+        .bg-thaimart { background-color: #3b82f6; }
+        .text-thaimart { color: #1d4ed8; }
+
+        .theme-rizzup { background-color: rgba(236, 72, 153, 0.08); } 
+        .bg-rizzup { background-color: #ec4899; }
+        .text-rizzup { color: #be185d; }
+
+        .theme-cashflow { background-color: rgba(34, 197, 94, 0.08); } 
+        .bg-cashflow { background-color: #22c55e; }
+        .text-cashflow { color: #15803d; }
+
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .live-pulse { animation: pulse-soft 2s infinite; }
     </style>
 </head>
-<body class="text-slate-900 p-4">
+<body class="text-slate-900 p-4 md:p-6">
 
     <div id="app" class="h-full flex flex-col">
-        <!-- Header -->
-        <header class="flex items-center justify-between mb-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 text-white p-2.5 rounded-xl">
-                    <i data-lucide="layout-grid" class="w-6 h-6"></i>
+        <!-- Dashboard Header -->
+        <header class="flex items-center justify-between mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 text-white p-3 rounded-2xl shadow-lg shadow-indigo-100">
+                    <i data-lucide="layout-dashboard" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 leading-none">Project Roadmap & Monitoring</h1>
-                    <p id="current-date-display" class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest"></p>
+                    <h1 class="text-xl font-black text-slate-800 leading-none uppercase">Project Monitoring</h1>
+                    <div class="flex items-center gap-2 mt-1.5">
+                        <span id="current-date-display" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest"></span>
+                        <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                        <span class="text-[11px] font-bold text-emerald-500 uppercase tracking-widest live-pulse">Live Status</span>
+                    </div>
                 </div>
             </div>
 
             <div class="flex items-center gap-10">
-                <div class="text-right">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Tasks</p>
-                    <p id="pendingTasks" class="text-xl font-black text-indigo-600 leading-none mt-1">0</p>
+                <div class="text-center">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Actions</p>
+                    <p id="totalTasks" class="text-2xl font-black text-slate-800 leading-none">0</p>
                 </div>
                 <div class="h-10 w-[1px] bg-slate-100"></div>
-                <div class="flex flex-col items-end">
-                    <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded tracking-tighter">วันที่จำลอง (Simulated)</span>
-                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">19 มี.ค. 2569</span>
+                <div class="text-center">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">In-Process</p>
+                    <p id="pendingCount" class="text-2xl font-black text-amber-500 leading-none">0</p>
                 </div>
             </div>
         </header>
 
+        <!-- Grid Container -->
         <div class="main-dashboard-grid">
-            <!-- 1. LOTTERY PLUS -->
-            <div class="project-column hide-scrollbar">
-                <div class="sticky top-0 bg-white/90 backdrop-blur px-3 py-2 rounded-xl mb-2 z-10 border border-slate-100 shadow-sm">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[11px] font-black text-red-600 tracking-widest uppercase">1. LOTTERY PLUS</span>
-                        <div class="flex gap-1" id="filter-1">
-                            <span onclick="setFilter('1', 'all')" class="filter-chip active text-[8px] px-2 py-0.5 rounded-full border border-slate-200 font-bold uppercase">All</span>
-                            <span onclick="setFilter('1', 'pending')" class="filter-chip text-[8px] px-2 py-0.5 rounded-full border border-slate-200 font-bold uppercase">🟡</span>
-                            <span onclick="setFilter('1', 'done')" class="filter-chip text-[8px] px-2 py-0.5 rounded-full border border-slate-200 font-bold uppercase">🟢</span>
-                        </div>
+            <!-- Column 1: Lottery Plus -->
+            <div id="col-1" class="project-column hide-scrollbar">
+                <div class="column-header-sticky">
+                    <div class="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-xl shadow-md">
+                        <i data-lucide="ticket" class="w-4 h-4"></i>
+                        <span class="text-[12px] font-black tracking-widest">LOTTERY PLUS</span>
                     </div>
-                    <div class="text-[9px] text-slate-400 font-medium">เรียงตาม: ความคืบหน้า (มาก → น้อย)</div>
                 </div>
-                <div id="lotteryGrid" class="flex flex-col gap-3"></div>
+                <div id="lotteryGrid" class="flex flex-col gap-4"></div>
             </div>
 
-            <!-- 2. MU TODAY -->
-            <div class="project-column hide-scrollbar">
-                <div class="sticky top-0 bg-white/90 backdrop-blur px-3 py-2 rounded-xl mb-2 z-10 border border-slate-100 shadow-sm">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[11px] font-black text-purple-600 tracking-widest uppercase">2. MU TODAY</span>
-                        <div class="flex gap-1" id="filter-2">
-                            <span onclick="setFilter('2', 'all')" class="filter-chip active text-[8px] px-2 py-0.5 rounded-full border border-slate-200 font-bold uppercase">All</span>
-                            <span onclick="setFilter('2', 'pending')" class="filter-chip text-[8px] px-2 py-0.5 rounded-full border border-slate-200 font-bold uppercase">🟡</span>
-                        </div>
+            <!-- Column 2: Mu Today -->
+            <div id="col-2" class="project-column hide-scrollbar">
+                <div class="column-header-sticky">
+                    <div class="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl shadow-md">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        <span class="text-[12px] font-black tracking-widest">MU TODAY</span>
                     </div>
-                    <div class="text-[9px] text-slate-400 font-medium">เรียงตาม: ความคืบหน้า (มาก → น้อย)</div>
                 </div>
-                <div id="muGrid" class="flex flex-col gap-3"></div>
+                <div id="muGrid" class="flex flex-col gap-4"></div>
             </div>
 
-            <!-- 3. MIXED & OTHERS -->
-            <div class="project-column hide-scrollbar">
-                <div class="sticky top-0 bg-white/90 backdrop-blur px-3 py-2 rounded-xl mb-2 z-10 border border-slate-100 shadow-sm">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[11px] font-black text-amber-600 tracking-widest uppercase">3. MIXED PROJECTS</span>
-                        <div class="flex gap-1" id="filter-3">
-                            <span onclick="setFilter('3', 'all')" class="filter-chip active text-[8px] px-2 py-0.5 rounded-full border border-slate-200 font-bold uppercase">All</span>
-                            <span onclick="setFilter('3', 'pending')" class="filter-chip text-[8px] px-2 py-0.5 rounded-full border border-slate-200 font-bold uppercase">🟡</span>
-                        </div>
+            <!-- Column 3: Mixed Projects -->
+            <div id="col-3" class="project-column hide-scrollbar">
+                <div class="column-header-sticky">
+                    <div class="flex items-center gap-2 bg-slate-700 text-white px-4 py-2 rounded-xl shadow-md">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                        <span class="text-[12px] font-black tracking-widest">MIXED PROJECTS</span>
                     </div>
-                    <div class="text-[9px] text-slate-400 font-medium">เรียงตาม: ความคืบหน้า (มาก → น้อย)</div>
                 </div>
-                <div id="mixedGrid" class="flex flex-col gap-3"></div>
+                <div id="mixedGrid" class="flex flex-col gap-4"></div>
             </div>
         </div>
     </div>
@@ -106,122 +184,115 @@
         dayjs.locale('th');
 
         const SIMULATED_NOW = dayjs('2026-03-19');
-        let currentFilters = { '1': 'all', '2': 'all', '3': 'all' };
 
         const rawData = [
-            { id: 1, parentProject: "1. LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY", statusIcon: "🟡", statusText: "Pending", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", receiveDate: "2/27", deadline: "-" },
-            { id: 2, parentProject: "1. LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book", statusIcon: "🟡", statusText: "Pending", nextStep: "รอทางทีม We Compound Book คิว", receiveDate: "2/6", deadline: "-" },
-            { id: 3, parentProject: "1. LOTTERY PLUS", bu: "MKT Structure", task: "อนุมัติแผนโครงสร้างทีมใหม่", statusIcon: "🟡", statusText: "Pending", nextStep: "CMO จะนำเสนอกรอบเวลาและแนวทางภายหลัง", receiveDate: "3/5", deadline: "-" },
-            { id: 4, parentProject: "1. LOTTERY PLUS", bu: "Event: Happy bus", task: "กิจกรรมรถบัสความสุข", statusIcon: "🟡", statusText: "Pending", nextStep: "ได้ 400/500 ขยายเวลาลงทะเบียนแล้ว", receiveDate: "2/20", deadline: "4/10" },
-            { id: 5, parentProject: "1. LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", statusIcon: "🟡", statusText: "Pending", nextStep: "MONO ปรับ Road map และสรุป Req ภายใน 23 มี.ค.", receiveDate: "3/5", deadline: "3/23" },
-            { id: 6, parentProject: "1. LOTTERY PLUS", bu: "Racing Project", task: "Agenda วันซ้อม/วันแข่ง", statusIcon: "🟡", statusText: "Pending", nextStep: "รอคุณ ต้น DEV นัด MEETING เพื่อคุย Feature", receiveDate: "3/6", deadline: "-" },
-            { id: 7, parentProject: "1. LOTTERY PLUS", bu: "Production", task: "นำเสนอ 3 รายการ Youtube", statusIcon: "🟡", statusText: "Pending", nextStep: "Post ลง Social Media แล้ว (ขึ้น Demo ทุกรายการ)", receiveDate: "2/1", deadline: "-" },
-            { id: 8, parentProject: "1. LOTTERY PLUS", bu: "The Next Gen (คุณ SOFT)", task: "โปรแกรมพัฒนาบุคลากร", statusIcon: "🟡", statusText: "Pending", nextStep: "รอประชุม Brand Book กับคุณซอฟ", receiveDate: "3/5", deadline: "3/25" },
-            { id: 9, parentProject: "1. LOTTERY PLUS", bu: "HR Team", task: "สรุปแผนโครงสร้าง TEAM", statusIcon: "🟡", statusText: "Pending", nextStep: "รอคุณ รถตู้ นัด MEETING", receiveDate: "3/9", deadline: "-" },
-            { id: 10, parentProject: "2. MU TODAY", bu: "MU Community", task: "หยุดโฟกัส Community ชั่วคราว", statusIcon: "🟡", statusText: "Pending", nextStep: "เน้น Partner First! Support Content", receiveDate: "3/6", deadline: "-" },
-            { id: 11, parentProject: "2. MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูลและการทำนาย", statusIcon: "🟡", statusText: "Pending", nextStep: "หา Creative และ TIktok / นัดคุย Model", receiveDate: "2/11", deadline: "-" },
-            { id: 12, parentProject: "3. CHECKIN PLUS", bu: "CIP Update", task: "Sale Support & ระบบจ่ายเงิน", statusIcon: "🟡", statusText: "Pending", nextStep: "Checkin Book (BETA) ปลาย มี.ค.", receiveDate: "2/6", deadline: "-" },
-            { id: 13, parentProject: "4. THAIMART", bu: "Business Model", task: "คอนเซปต์ 'THAIMART = TRUST'", statusIcon: "🟡", statusText: "Pending", nextStep: "รอดู Brandbook ของ LotteryPlus ก่อน", receiveDate: "3/1", deadline: "-" }
+            { id: 1, project: "LOTTERY PLUS", bu: "Community", task: "แนวทางการ BUILD COMMUNITY", nextStep: "รอแผนจาก Team Event และ CMO", receive: "2/27", due: "3/30" },
+            { id: 2, project: "LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book ใหม่", nextStep: "รอคิวแก้จาก We Compound", receive: "2/6", due: "-" },
+            { id: 3, project: "LOTTERY PLUS", bu: "Event: Racing", task: "Agenda วันซ้อม/วันแข่ง", nextStep: "ซ้อมครั้งต่อไป simulator ดูการเข้าเกียร์", receive: "3/6", due: "4/15" },
+            { id: 4, project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", nextStep: "สรุป Requirement ภายใน 23 มี.ค.", receive: "3/5", due: "3/23" },
+            
+            { id: 10, project: "MU TODAY", bu: "MU Community", task: "Partner First Strategy", nextStep: "Support Content ให้ Partner หลัก", receive: "3/6", due: "-" },
+            { id: 11, project: "MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูล AI มู", nextStep: "หา Creative และ Tiktok เพิ่ม", receive: "2/11", due: "3/25" },
+            
+            { id: 20, project: "CHECKIN PLUS", bu: "Payments", task: "ระบบชำระเงินบัตรเครดิต", nextStep: "Checkin Book Beta ปลาย มี.ค.", receive: "2/6", due: "3/31" },
+            { id: 30, project: "THAIMART", bu: "Brand", task: "Concept 'TRUST'", nextStep: "รอดู Brandbook จาก Lottery Plus", receive: "3/1", due: "4/30" },
+            { id: 40, project: "RIZZ UP", bu: "Marketing", task: "Campaign Launch", nextStep: "สรุปแผนงานเปิดตัวเมษายน", receive: "3/10", due: "4/5" },
+            { id: 50, project: "CASHFLOW GAME", bu: "Dev", task: "Beta Multi-player", nextStep: "ทดสอบความเสถียรของ Server", receive: "3/5", due: "3/28" }
         ];
 
-        function extractDate(dateString) {
-            if (!dateString || dateString.trim() === '-' || dateString.trim() === '') return null;
-            if (dateString.includes('/')) {
-                const [m, d] = dateString.split('/').map(n => parseInt(n));
-                if (!isNaN(m) && !isNaN(d)) return dayjs(`2026-${m}-${d}`);
-            }
-            return null;
-        }
-
-        function calculateProgressValue(item) {
-            if (item.statusIcon === "🟢") return 100;
-            const start = extractDate(item.receiveDate);
-            const end = extractDate(item.deadline);
-            if (!end) return 10; // Default for no deadline
-            const baseStart = start || end.subtract(14, 'day');
-            const totalDays = end.diff(baseStart, 'day');
-            const passedDays = SIMULATED_NOW.diff(baseStart, 'day');
-            if (totalDays <= 0) return SIMULATED_NOW.isAfter(end) ? 100 : 90;
-            return Math.max(5, Math.min(99, Math.round((passedDays / totalDays) * 100)));
-        }
-
-        function setFilter(colId, filterType) {
-            currentFilters[colId] = filterType;
-            // Update UI chips
-            const container = document.getElementById(`filter-${colId}`);
-            container.querySelectorAll('.filter-chip').forEach(chip => {
-                chip.classList.remove('active');
-                if (chip.innerText.toLowerCase().includes(filterType) || (filterType === 'all' && chip.innerText === 'ALL')) {
-                    chip.classList.add('active');
-                }
-            });
-            render();
+        function getTheme(projectName) {
+            const name = projectName.toUpperCase();
+            if (name.includes("LOTTERY")) return { theme: "theme-lottery", bg: "bg-lottery", text: "text-lottery", hex: "#ef4444" };
+            if (name.includes("MU TODAY")) return { theme: "theme-mu", bg: "bg-mu", text: "text-mu", hex: "#a855f7" };
+            if (name.includes("CHECKIN")) return { theme: "theme-checkin", bg: "bg-checkin", text: "text-checkin", hex: "#eab308" };
+            if (name.includes("THAIMART")) return { theme: "theme-thaimart", bg: "bg-thaimart", text: "text-thaimart", hex: "#3b82f6" };
+            if (name.includes("RIZZ UP")) return { theme: "theme-rizzup", bg: "bg-rizzup", text: "text-rizzup", hex: "#ec4899" };
+            if (name.includes("CASHFLOW")) return { theme: "theme-cashflow", bg: "bg-cashflow", text: "text-cashflow", hex: "#22c55e" };
+            return { theme: "bg-slate-50", bg: "bg-slate-500", text: "text-slate-600", hex: "#64748b" };
         }
 
         function createCard(item) {
-            const colors = item.parentProject.includes("1") ? { border: "border-red-500", bar: "#ef4444", text: "text-red-600" } :
-                           item.parentProject.includes("2") ? { border: "border-purple-600", bar: "#9333ea", text: "text-purple-600" } :
-                           { border: "border-amber-500", bar: "#f59e0b", text: "text-amber-600" };
-            
-            const pVal = calculateProgressValue(item);
-            const label = item.statusIcon === "🟢" ? "DONE" : (item.deadline === "-" ? item.nextStep : pVal + "%");
+            const theme = getTheme(item.project);
+            const progress = Math.floor(Math.random() * 40) + 30; 
 
             return `
-                <div class="project-card ${colors.border}">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="text-[9px] font-black uppercase text-slate-400 tracking-wider">${item.bu}</span>
-                        <div class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-100">
-                            <span class="text-[10px]">${item.statusIcon}</span>
-                            <span class="text-[9px] font-black text-slate-600 uppercase">${item.statusText}</span>
-                        </div>
+                <div class="project-card ${theme.theme}">
+                    <div class="card-header ${theme.bg}">
+                        <span class="text-[9px] font-black uppercase tracking-tighter">${item.project}</span>
+                        <span class="text-[9px] font-bold bg-white/20 px-2 py-0.5 rounded-full uppercase">Pending</span>
                     </div>
-                    <h3 class="text-[12px] font-bold text-slate-800 leading-tight mb-2 line-clamp-1">${item.task}</h3>
-                    <div class="bg-slate-50/80 p-2 rounded-lg border border-slate-100 mb-3">
-                        <p class="text-[10px] font-medium text-slate-600 leading-relaxed line-clamp-2">
-                            <span class="text-indigo-500 font-bold">Details:</span> ${item.nextStep}
-                        </p>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between items-end">
-                            <span class="text-[9px] font-bold text-slate-300 uppercase">Progress</span>
-                            <span class="text-[10px] font-black ${colors.text}">${label}</span>
+                    
+                    <div class="p-4 flex flex-col gap-3">
+                        <div>
+                            <p class="text-[10px] font-black ${theme.text} uppercase tracking-widest mb-0.5">${item.bu}</p>
+                            <h3 class="text-[13px] font-bold text-slate-800 leading-snug line-clamp-1">${item.task}</h3>
                         </div>
-                        <div class="progress-bar-container">
-                            <div class="progress-fill" style="width: ${pVal}%; background-color: ${colors.bar};"></div>
+
+                        <div class="bg-white/60 backdrop-blur-sm p-3 rounded-xl border border-white/40 shadow-sm">
+                            <p class="text-[10px] font-semibold text-slate-600 leading-relaxed italic">
+                                <span class="${theme.text} font-black not-italic">NEXT:</span> ${item.nextStep}
+                            </p>
                         </div>
-                        <div class="flex justify-between items-center text-[8px] font-bold text-slate-400 pt-1">
-                            <span>เริ่ม: ${item.receiveDate}</span>
-                            <span>จบ: ${item.deadline}</span>
+
+                        <div class="space-y-1.5 mt-1">
+                            <div class="flex justify-between items-end">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase">Progress</span>
+                                <span class="text-[10px] font-black ${theme.text}">${progress}%</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar ${theme.bg}" style="width: ${progress}%"></div>
+                            </div>
+                            
+                            <!-- ปรับปรุงขนาดและสีของส่วนวันสั่งงานและ DeadLine -->
+                            <div class="flex justify-between items-center pt-2 mt-1 border-t border-black/5">
+                                <div class="flex flex-col">
+                                    <span class="text-[8px] font-black text-slate-400 uppercase leading-none mb-0.5">วันสั่งงาน</span>
+                                    <span class="text-[11px] font-black ${theme.text}">${item.receive}</span>
+                                </div>
+                                <div class="flex flex-col items-end">
+                                    <span class="text-[8px] font-black text-slate-400 uppercase leading-none mb-0.5">DEADLINE</span>
+                                    <span class="text-[11px] font-black ${theme.text}">${item.due}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        function render() {
-            document.getElementById('current-date-display').innerText = SIMULATED_NOW.format('dddd, DD MMMM YYYY');
+        function initAutoScroll(id) {
+            const el = document.getElementById(id);
+            let dir = 1;
+            let isPaused = false;
             
-            // 1. Calculate & Sort Data
-            const sortedData = rawData.map(item => ({
-                ...item,
-                _pVal: calculateProgressValue(item)
-            })).sort((a, b) => b._pVal - a._pVal); // เรียงจากมากไปน้อย
+            setInterval(() => {
+                if (isPaused) return;
+                if (el.scrollHeight > el.clientHeight) {
+                    el.scrollTop += (0.6 * dir);
+                    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
+                        isPaused = true;
+                        setTimeout(() => { dir = -1; isPaused = false; }, 3000);
+                    }
+                    if (el.scrollTop <= 0 && dir === -1) {
+                        isPaused = true;
+                        setTimeout(() => { dir = 1; isPaused = false; }, 3000);
+                    }
+                }
+            }, 50);
 
-            // 2. Filter Logic
-            const filterByStatus = (list, colId) => {
-                const type = currentFilters[colId];
-                if (type === 'all') return list;
-                if (type === 'pending') return list.filter(i => i.statusIcon === "🟡");
-                if (type === 'done') return list.filter(i => i.statusIcon === "🟢");
-                return list;
-            };
+            el.addEventListener('mouseenter', () => isPaused = true);
+            el.addEventListener('mouseleave', () => isPaused = false);
+        }
 
-            const lottery = filterByStatus(sortedData.filter(i => i.parentProject.includes("1")), '1');
-            const mu = filterByStatus(sortedData.filter(i => i.parentProject.includes("2")), '2');
-            const mixed = filterByStatus(sortedData.filter(i => i.parentProject.includes("3") || i.parentProject.includes("4")), '3');
+        function render() {
+            document.getElementById('current-date-display').innerText = SIMULATED_NOW.format('DD MMMM YYYY');
+            document.getElementById('totalTasks').innerText = rawData.length;
+            document.getElementById('pendingCount').innerText = rawData.length;
 
-            // 3. Render to DOM
-            document.getElementById('pendingTasks').innerText = rawData.filter(i => i.statusIcon === "🟡").length;
+            const lottery = rawData.filter(i => i.project.includes("LOTTERY"));
+            const mu = rawData.filter(i => i.project.includes("MU TODAY"));
+            const mixed = rawData.filter(i => !i.project.includes("LOTTERY") && !i.project.includes("MU TODAY"));
+
             document.getElementById('lotteryGrid').innerHTML = lottery.map(createCard).join('');
             document.getElementById('muGrid').innerHTML = mu.map(createCard).join('');
             document.getElementById('mixedGrid').innerHTML = mixed.map(createCard).join('');
@@ -229,7 +300,12 @@
             lucide.createIcons();
         }
 
-        window.onload = render;
+        window.onload = () => {
+            render();
+            initAutoScroll('col-1');
+            initAutoScroll('col-2');
+            initAutoScroll('col-3');
+        };
     </script>
 </body>
 </html>
