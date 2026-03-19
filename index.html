@@ -243,7 +243,6 @@
                                 <div class="progress-bar ${theme.bg}" style="width: ${progress}%"></div>
                             </div>
                             
-                            <!-- ปรับปรุงขนาดและสีของส่วนวันสั่งงานและ DeadLine -->
                             <div class="flex justify-between items-center pt-2 mt-1 border-t border-black/5">
                                 <div class="flex flex-col">
                                     <span class="text-[8px] font-black text-slate-400 uppercase leading-none mb-0.5">วันสั่งงาน</span>
@@ -264,24 +263,45 @@
             const el = document.getElementById(id);
             let dir = 1;
             let isPaused = false;
+            let lastScrollTop = -1;
             
+            // ใช้ความถี่ในการอัพเดท 30ms เพื่อความลื่นไหล
             setInterval(() => {
                 if (isPaused) return;
-                if (el.scrollHeight > el.clientHeight) {
-                    el.scrollTop += (0.6 * dir);
-                    if (el.scrollTop + el.clientHeight >= el.scrollHeight - 1) {
+
+                // ตรวจสอบว่า Scroll ได้ไหม (เช็คผลต่าง scrollHeight กับ clientHeight)
+                const canScroll = el.scrollHeight > (el.clientHeight + 10);
+                
+                if (canScroll) {
+                    el.scrollTop += (0.8 * dir);
+
+                    // ถ้าแตะขอบล่าง
+                    if (dir === 1 && (el.scrollTop + el.clientHeight >= el.scrollHeight - 5)) {
                         isPaused = true;
-                        setTimeout(() => { dir = -1; isPaused = false; }, 3000);
+                        setTimeout(() => { 
+                            dir = -1; 
+                            isPaused = false; 
+                        }, 4000); // พัก 4 วินาทีที่ด้านล่าง
                     }
-                    if (el.scrollTop <= 0 && dir === -1) {
+                    
+                    // ถ้าแตะขอบบน
+                    if (dir === -1 && el.scrollTop <= 5) {
                         isPaused = true;
-                        setTimeout(() => { dir = 1; isPaused = false; }, 3000);
+                        setTimeout(() => { 
+                            dir = 1; 
+                            isPaused = false; 
+                        }, 4000); // พัก 4 วินาทีที่ด้านบน
                     }
                 }
-            }, 50);
+            }, 30);
 
+            // หยุดเมื่อเอาเม้าส์ไปวาง
             el.addEventListener('mouseenter', () => isPaused = true);
             el.addEventListener('mouseleave', () => isPaused = false);
+            
+            // สำหรับ Touch Screen (เผื่อใครกด)
+            el.addEventListener('touchstart', () => isPaused = true);
+            el.addEventListener('touchend', () => isPaused = false);
         }
 
         function render() {
@@ -302,9 +322,12 @@
 
         window.onload = () => {
             render();
-            initAutoScroll('col-1');
-            initAutoScroll('col-2');
-            initAutoScroll('col-3');
+            // หน่วงเวลาเริ่ม scroll นิดนึงหลังจาก Render เสร็จ
+            setTimeout(() => {
+                initAutoScroll('col-1');
+                initAutoScroll('col-2');
+                initAutoScroll('col-3');
+            }, 2000);
         };
     </script>
 </body>
