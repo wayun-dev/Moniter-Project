@@ -108,6 +108,18 @@
 
         @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
         .live-pulse { animation: pulse-soft 2s infinite; }
+
+        /* Fullscreen Button Styles */
+        .fullscreen-btn {
+            transition: all 0.2s;
+        }
+        .fullscreen-btn:hover {
+            background-color: #f8fafc;
+            transform: scale(1.05);
+        }
+        .fullscreen-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 <body class="text-slate-900 p-4 md:p-6">
@@ -129,7 +141,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-10">
+            <div class="flex items-center gap-8">
                 <div class="text-center">
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Actions</p>
                     <p id="totalTasks" class="text-2xl font-black text-slate-800 leading-none">0</p>
@@ -139,6 +151,13 @@
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">In-Process</p>
                     <p id="pendingCount" class="text-2xl font-black text-amber-500 leading-none">0</p>
                 </div>
+                <div class="h-10 w-[1px] bg-slate-100"></div>
+                
+                <!-- Fullscreen Button -->
+                <button onclick="toggleFullScreen()" class="fullscreen-btn flex flex-col items-center justify-center p-2 rounded-xl border border-slate-100 bg-white shadow-sm hover:shadow-md min-w-[80px]">
+                    <i data-lucide="maximize" id="fullscreen-icon" class="w-5 h-5 text-slate-600 mb-1"></i>
+                    <span id="fullscreen-text" class="text-[8px] font-black text-slate-400 uppercase">Full Screen</span>
+                </button>
             </div>
         </header>
 
@@ -186,19 +205,64 @@
         const SIMULATED_NOW = dayjs('2026-03-19');
 
         const rawData = [
-            { id: 1, project: "LOTTERY PLUS", bu: "Community", task: "แนวทางการ BUILD COMMUNITY", nextStep: "รอแผนจาก Team Event และ CMO", receive: "2/27", due: "3/30" },
-            { id: 2, project: "LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book ใหม่", nextStep: "รอคิวแก้จาก We Compound", receive: "2/6", due: "-" },
+            { id: 1, project: "LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", receive: "2/27", due: "-" },
+            { id: 2, project: "LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book", nextStep: "รอทางทีม We Compound Book คิว", receive: "2/6", due: "-" },
             { id: 3, project: "LOTTERY PLUS", bu: "Event: Racing", task: "Agenda วันซ้อม/วันแข่ง", nextStep: "ซ้อมครั้งต่อไป simulator ดูการเข้าเกียร์", receive: "3/6", due: "4/15" },
-            { id: 4, project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", nextStep: "สรุป Requirement ภายใน 23 มี.ค.", receive: "3/5", due: "3/23" },
-            
+            { id: 4, project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", nextStep: "MONO จะปรับ Road map และสรุป Requirement", receive: "3/5", due: "3/23" },
+            { id: 5, project: "LOTTERY PLUS", bu: "Event: Happy bus", task: "กิจกรรมรถบัสความสุข", nextStep: "กำลังดำเนินการ ได้ 400/500 ขยายเวลาลงทะเบียนแล้ว", receive: "2/20", due: "4/10" },
             { id: 10, project: "MU TODAY", bu: "MU Community", task: "Partner First Strategy", nextStep: "Support Content ให้ Partner หลัก", receive: "3/6", due: "-" },
             { id: 11, project: "MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูล AI มู", nextStep: "หา Creative และ Tiktok เพิ่ม", receive: "2/11", due: "3/25" },
-            
             { id: 20, project: "CHECKIN PLUS", bu: "Payments", task: "ระบบชำระเงินบัตรเครดิต", nextStep: "Checkin Book Beta ปลาย มี.ค.", receive: "2/6", due: "3/31" },
             { id: 30, project: "THAIMART", bu: "Brand", task: "Concept 'TRUST'", nextStep: "รอดู Brandbook จาก Lottery Plus", receive: "3/1", due: "4/30" },
             { id: 40, project: "RIZZ UP", bu: "Marketing", task: "Campaign Launch", nextStep: "สรุปแผนงานเปิดตัวเมษายน", receive: "3/10", due: "4/5" },
             { id: 50, project: "CASHFLOW GAME", bu: "Dev", task: "Beta Multi-player", nextStep: "ทดสอบความเสถียรของ Server", receive: "3/5", due: "3/28" }
         ];
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement &&    // alternative standard method
+                !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+                updateFullscreenUI(true);
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                updateFullscreenUI(false);
+            }
+        }
+
+        function updateFullscreenUI(isFull) {
+            const icon = document.getElementById('fullscreen-icon');
+            const text = document.getElementById('fullscreen-text');
+            if (isFull) {
+                icon.setAttribute('data-lucide', 'minimize');
+                text.innerText = 'Exit Full';
+            } else {
+                icon.setAttribute('data-lucide', 'maximize');
+                text.innerText = 'Full Screen';
+            }
+            lucide.createIcons();
+        }
+
+        // ฟังเหตุการณ์การเปลี่ยนหน้าจอ (กรณีผู้ใช้กด Esc)
+        document.addEventListener('fullscreenchange', () => updateFullscreenUI(!!document.fullscreenElement));
+        document.addEventListener('webkitfullscreenchange', () => updateFullscreenUI(!!document.webkitFullscreenElement));
+        document.addEventListener('mozfullscreenchange', () => updateFullscreenUI(!!document.mozFullScreenElement));
+        document.addEventListener('MSFullscreenChange', () => updateFullscreenUI(!!document.msFullscreenElement));
 
         function getTheme(projectName) {
             const name = projectName.toUpperCase();
@@ -263,43 +327,25 @@
             const el = document.getElementById(id);
             let dir = 1;
             let isPaused = false;
-            let lastScrollTop = -1;
             
-            // ใช้ความถี่ในการอัพเดท 30ms เพื่อความลื่นไหล
             setInterval(() => {
                 if (isPaused) return;
-
-                // ตรวจสอบว่า Scroll ได้ไหม (เช็คผลต่าง scrollHeight กับ clientHeight)
                 const canScroll = el.scrollHeight > (el.clientHeight + 10);
-                
                 if (canScroll) {
                     el.scrollTop += (0.8 * dir);
-
-                    // ถ้าแตะขอบล่าง
                     if (dir === 1 && (el.scrollTop + el.clientHeight >= el.scrollHeight - 5)) {
                         isPaused = true;
-                        setTimeout(() => { 
-                            dir = -1; 
-                            isPaused = false; 
-                        }, 4000); // พัก 4 วินาทีที่ด้านล่าง
+                        setTimeout(() => { dir = -1; isPaused = false; }, 4000);
                     }
-                    
-                    // ถ้าแตะขอบบน
                     if (dir === -1 && el.scrollTop <= 5) {
                         isPaused = true;
-                        setTimeout(() => { 
-                            dir = 1; 
-                            isPaused = false; 
-                        }, 4000); // พัก 4 วินาทีที่ด้านบน
+                        setTimeout(() => { dir = 1; isPaused = false; }, 4000);
                     }
                 }
             }, 30);
 
-            // หยุดเมื่อเอาเม้าส์ไปวาง
             el.addEventListener('mouseenter', () => isPaused = true);
             el.addEventListener('mouseleave', () => isPaused = false);
-            
-            // สำหรับ Touch Screen (เผื่อใครกด)
             el.addEventListener('touchstart', () => isPaused = true);
             el.addEventListener('touchend', () => isPaused = false);
         }
@@ -322,7 +368,6 @@
 
         window.onload = () => {
             render();
-            // หน่วงเวลาเริ่ม scroll นิดนึงหลังจาก Render เสร็จ
             setTimeout(() => {
                 initAutoScroll('col-1');
                 initAutoScroll('col-2');
