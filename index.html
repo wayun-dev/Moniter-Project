@@ -12,32 +12,51 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Kanit', sans-serif; background-color: #0f172a; overflow: hidden; height: 100vh; color: white; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .main-dashboard-grid { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
             gap: 24px; 
-            height: calc(100vh - 140px); 
-            padding: 0 10px 20px 10px;
+            height: calc(100vh - 160px); 
+            padding: 0 20px;
         }
 
         .project-column { 
             display: flex; 
             flex-direction: column; 
-            gap: 20px; 
-            overflow-y: auto; 
-            padding-bottom: 100px;
-            scroll-behavior: smooth;
+            overflow: hidden; /* ซ่อน scrollbar ปกติ */
+            position: relative;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 32px;
         }
 
         .column-header-sticky {
-            position: sticky;
-            top: 0;
-            background: #0f172a;
-            z-index: 30;
+            position: relative;
+            z-index: 50;
             padding: 10px 0;
+            background: #0f172a;
+        }
+
+        /* Container สำหรับทำ Auto Scroll ด้วย CSS */
+        .scroll-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .scroll-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 10px;
+            /* กำหนด animation เริ่มต้น */
+            animation: verticalScroll linear infinite;
+        }
+
+        /* ปรับแต่งความเร็วตามความยาวเนื้อหาผ่าน JS */
+        @keyframes verticalScroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
         }
 
         .project-card { 
@@ -46,7 +65,6 @@
             background: rgba(30, 41, 59, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
             height: fit-content;
         }
 
@@ -110,34 +128,40 @@
 
         <!-- Columns -->
         <div class="main-dashboard-grid">
-            <div id="col-1" class="project-column hide-scrollbar">
+            <div class="project-column">
                 <div class="column-header-sticky">
-                    <div class="flex items-center gap-3 bg-red-600 px-6 py-4 rounded-2xl shadow-lg shadow-red-900/20">
+                    <div class="flex items-center gap-3 bg-red-600 px-6 py-4 rounded-2xl shadow-lg shadow-red-900/20 mx-2">
                         <i data-lucide="ticket" class="w-6 h-6"></i>
                         <span class="text-lg font-black uppercase tracking-widest">1. Lottery Plus</span>
                     </div>
                 </div>
-                <div id="lotteryGrid" class="flex flex-col gap-5"></div>
+                <div class="scroll-container" id="container-lottery">
+                    <div id="lotteryGrid" class="scroll-content"></div>
+                </div>
             </div>
 
-            <div id="col-2" class="project-column hide-scrollbar">
+            <div class="project-column">
                 <div class="column-header-sticky">
-                    <div class="flex items-center gap-3 bg-purple-600 px-6 py-4 rounded-2xl shadow-lg shadow-purple-900/20">
+                    <div class="flex items-center gap-3 bg-purple-600 px-6 py-4 rounded-2xl shadow-lg shadow-purple-900/20 mx-2">
                         <i data-lucide="sparkles" class="w-6 h-6"></i>
                         <span class="text-lg font-black uppercase tracking-widest">2. Mu Today</span>
                     </div>
                 </div>
-                <div id="muGrid" class="flex flex-col gap-5"></div>
+                <div class="scroll-container" id="container-mu">
+                    <div id="muGrid" class="scroll-content"></div>
+                </div>
             </div>
 
-            <div id="col-3" class="project-column hide-scrollbar">
+            <div class="project-column">
                 <div class="column-header-sticky">
-                    <div class="flex items-center gap-3 bg-slate-700 px-6 py-4 rounded-2xl shadow-lg shadow-slate-900/20">
+                    <div class="flex items-center gap-3 bg-slate-700 px-6 py-4 rounded-2xl shadow-lg shadow-slate-900/20 mx-2">
                         <i data-lucide="layers" class="w-6 h-6"></i>
-                        <span class="text-lg font-black uppercase tracking-widest">3. Others / Checkin / RizzUp</span>
+                        <span class="text-lg font-black uppercase tracking-widest">3. Others / RizzUp</span>
                     </div>
                 </div>
-                <div id="mixedGrid" class="flex flex-col gap-5"></div>
+                <div class="scroll-container" id="container-mixed">
+                    <div id="mixedGrid" class="scroll-content"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -146,7 +170,6 @@
         dayjs.extend(window.dayjs_plugin_customParseFormat);
         dayjs.locale('th');
 
-        // ข้อมูลอัปเดตจากไฟล์ล่าสุด พร้อมแก้ชื่อทีม RIZZUP เป็น RIZZUPTEAM
         const rawData = [
             // LOTTERY PLUS
             { project: "LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY Online/Offline", detail: "การที่จะทำให้ COMMUNITY FIRST ทำยังไง มีกี่แบบ อะไรบ้าง และในแต่ละแบบทำยังไงแบบเป็นขั้นเป็นตอน ใครรับผิดชอบ ใครประสานงานทั้งหมด", status: "🟡", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", owner: "CMO", receive: "2/27", due: "-" },
@@ -184,41 +207,35 @@
             const statusColor = item.status === "🟡" ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-red-500/20 text-red-400 border-red-500/30";
             
             return `
-                <div class="project-card">
+                <div class="project-card shadow-xl shadow-black/20">
                     <div class="card-header-branded ${theme.bg}">
                         <span class="text-[11px] font-black uppercase tracking-[0.2em] text-white/90">${item.project}</span>
-                        <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-black/30 text-white border border-white/10 shadow-sm">${statusLabel}</span>
+                        <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-black/30 text-white border border-white/10">${statusLabel}</span>
                     </div>
                     <div class="p-6">
                         <div class="flex justify-between items-start mb-3">
                             <p class="text-[12px] font-bold ${theme.text} uppercase tracking-wider">${item.bu}</p>
-                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg border ${statusColor} shadow-sm">${statusLabel}</span>
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg border ${statusColor}">${statusLabel}</span>
                         </div>
                         <h3 class="text-xl font-bold text-white mb-3 leading-tight">${item.task}</h3>
-                        
                         <p class="text-[12px] text-slate-400 mb-5 leading-relaxed">${item.detail || '-'}</p>
-
                         <div class="bg-white/5 p-4 rounded-2xl border border-white/5 mb-5 shadow-inner flex flex-col gap-2">
                             <span class="text-[11px] font-black ${theme.text} uppercase tracking-widest flex items-center gap-2">
                                 <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i>
                                 Next Step
                             </span>
-                            <p class="text-[14px] font-medium text-slate-100 leading-relaxed whitespace-pre-line">${item.nextStep || '-'}</p>
+                            <p class="text-[14px] font-medium text-slate-100 leading-relaxed">${item.nextStep || '-'}</p>
                         </div>
-
                         <div class="flex flex-col gap-4 pt-5 border-t border-white/5">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-2xl bg-slate-700/50 flex items-center justify-center border border-white/10 shadow-lg">
-                                        <i data-lucide="user-2" class="w-6 h-6 text-white/80"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-[10px] font-bold text-slate-500 uppercase leading-none mb-1.5 tracking-tighter">Person in charge</p>
-                                        <p class="text-[15px] font-black text-slate-100">${item.owner || '-'}</p>
-                                    </div>
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-slate-700/50 flex items-center justify-center border border-white/10">
+                                    <i data-lucide="user-2" class="w-6 h-6 text-white/80"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase leading-none mb-1.5 tracking-tighter">Person in charge</p>
+                                    <p class="text-[15px] font-black text-slate-100">${item.owner || '-'}</p>
                                 </div>
                             </div>
-                            
                             <div class="grid grid-cols-2 gap-3">
                                 <div class="bg-black/20 p-3 rounded-2xl border border-white/5">
                                     <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Received</p>
@@ -235,36 +252,27 @@
             `;
         }
 
-        function initTVScroll(containerId) {
-            const el = document.getElementById(containerId);
-            if (!el) return;
-
-            let scrollSpeed = 0.65; 
-            let direction = 1; 
-            let pauseTime = 0;
+        /**
+         * ฟังก์ชันใหม่สำหรับการทำ Auto Scroll ด้วย CSS Animation
+         * ทำให้รองรับ Browser บน TV ได้ดีกว่า เพราะใช้ GPU
+         */
+        function setupAutoScroll(gridId, containerId) {
+            const grid = document.getElementById(gridId);
+            const container = document.getElementById(containerId);
             
-            function step() {
-                if (pauseTime > 0) {
-                    pauseTime--;
-                } else {
-                    const maxScroll = el.scrollHeight - el.clientHeight;
-                    if (maxScroll > 0) {
-                        el.scrollTop += scrollSpeed * direction;
-                        if (direction === 1 && el.scrollTop >= maxScroll - 0.5) {
-                            pauseTime = 400; 
-                            direction = -1;
-                            scrollSpeed = 5; 
-                        } 
-                        else if (direction === -1 && el.scrollTop <= 0.5) {
-                            pauseTime = 180;
-                            direction = 1;
-                            scrollSpeed = 0.65;
-                        }
-                    }
-                }
-                requestAnimationFrame(step);
-            }
-            setTimeout(() => requestAnimationFrame(step), 4000);
+            // ตรวจสอบว่าเนื้อหาเยอะพอที่จะต้อง Scroll ไหม
+            if (grid.scrollHeight <= container.clientHeight) return;
+
+            // คัดลอกเนื้อหาต่อท้ายเพื่อให้ Scroll ได้ต่อเนื่อง (Infinite Effect)
+            const originalContent = grid.innerHTML;
+            grid.innerHTML = originalContent + originalContent;
+
+            // คำนวณความเร็ว (วินาที) ตามความสูงของเนื้อหา
+            // ยิ่งเนื้อหายาว ยิ่งต้องใช้เวลาเยอะขึ้นเพื่อให้ความเร็วคงที่
+            const scrollHeight = grid.scrollHeight / 2;
+            const duration = scrollHeight / 35; // ปรับตัวเลข 35 เพื่อเพิ่ม/ลดความเร็ว (เลขน้อย = ช้าลง)
+
+            grid.style.animationDuration = `${duration}s`;
         }
 
         function toggleFullScreen() {
@@ -285,14 +293,16 @@
             document.getElementById('mixedGrid').innerHTML = mixed.map(createCard).join('');
 
             lucide.createIcons();
+
+            // รันระบบ Auto Scroll หลังจาก Render เสร็จ 1 วินาที
+            setTimeout(() => {
+                setupAutoScroll('lotteryGrid', 'container-lottery');
+                setupAutoScroll('muGrid', 'container-mu');
+                setupAutoScroll('mixedGrid', 'container-mixed');
+            }, 1000);
         }
 
-        window.onload = () => {
-            render();
-            initTVScroll('col-1');
-            initTVScroll('col-2');
-            initTVScroll('col-3');
-        };
+        window.onload = render;
     </script>
 </body>
 </html>
