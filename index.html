@@ -50,7 +50,6 @@
             height: fit-content;
         }
 
-        /* Fixed Header Padding & Layout */
         .card-header-branded {
             padding: 16px 20px;
             display: flex;
@@ -59,7 +58,6 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Theme Colors */
         .bg-lottery { background-color: #ef4444; }
         .text-lottery { color: #fca5a5; }
 
@@ -159,21 +157,22 @@
         const rawData = [
             // LOTTERY PLUS
             { project: "LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY Online/Offline", detail: "การที่จะทำให้ COMMUNITY FIRST ทำยังไง มีกี่แบบ อะไรบ้าง และในแต่ละแบบทำยังไงแบบเป็นขั้นเป็นตอน ใครรับผิดชอบ ใครประสานงานทั้งหมดในทุกฝ่ายในทุกแผนก", status: "🟡", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", owner: "CMO", receive: "2/27", due: "-" },
-            { project: "LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book", detail: "รอทางทีม We Compound Brand ปรับปรุงจาก Comment", status: "❌", nextStep: "รอทางทีม We Compound Book คิว", owner: "We Compound", receive: "2/6", due: "-" },
+            { project: "LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book", detail: "รอทางทีม We Compound Brand ปรับปรุงจาก Comment", status: "❌", nextStep: "รอทางทีม We Compound", owner: "We Compound", receive: "2/6", due: "-" },
             { project: "LOTTERY PLUS", bu: "MKT Structure", task: "CEO อนุมัติแผนโครงสร้างทีมใหม่แล้ว", detail: "ประสาน HR ทำ JD และสรรหาคนเพิ่ม", status: "🟡", nextStep: "Creator in resident CMO(พี่อิท) จะไปจัดการเงื่อนไข กรอบเวลา และแนวทางมาเสนอภายหลัง", owner: "CMO", receive: "3/5", due: "-" },
             { project: "LOTTERY PLUS", bu: "Event: Happy bus", task: "กิจกรรมรถบัสความสุข (Happy Bus)", detail: "สื่อสารถึงลูกค้าและ รอรวมรวบยอดทั้งหมด", status: "🟡", nextStep: "กำลังดำเนินการ ตอนนี้ได้ 400/500 และมีการขยายเวลาลงทะเบียนแล้ว", owner: "Event", receive: "2/20", due: "4/10" },
             { project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", detail: "สรุปงบประมาณและรายละเอียดกิจกรรมทั้งหมด และรอคุยกับทาง MONO", status: "🟡", nextStep: "MONO จะปรับ Road map และ สรุป Reqirement ตามที่ทีม และ CEO Prove", owner: "MONO", receive: "3/5", due: "3/23" },
-            { project: "LOTTERY PLUS", bu: "The Next Gen (คุณ SOFT)", task: "โปรแกรมพัฒนาบุคลากร", detail: "Camp: อบรมเสร็จแล้ว และ อนุมัติงบประมาณทำ BrandBook แล้ว", status: "🟡", nextStep: "รอประชุม Brand book กับคุณซอฟ", owner: "คุณ SOFT", receive: "3/5", due: "3/25" },
+            { project: "LOTTERY PLUS", bu: "Event: Racing Project", task: "Agenda วันซ้อม/วันแข่ง", detail: "อยู่ในกระบวนการ ซ้อมตาม Calendar", status: "🟡", nextStep: "Post ลง Social Media ของ Lottery plus แล้ว", owner: "Marketing Team", receive: "2/1", due: "-" },
+            { project: "LOTTERY PLUS", bu: "The Next Gen (คุณ SOFT)", task: "โปรแกรมพัฒนาบุคลากร", detail: "Camp: อบรมเสร็จแล้ว และ อนุมัติงบประมาณทำ BrandBook แล้ว", status: "🟡", nextStep: "และรอ ประชุมBrand bookกับคุณซอฟ", owner: "คุณSOFT", receive: "3/5", due: "3/25" },
             { project: "LOTTERY PLUS", bu: "HR team", task: "สรุป แผนโครงสร้าง TEAM", detail: "รอนัดครั้งถัดไป", status: "🟡", nextStep: "รอคุณ รถตู้ นัด MEETING", owner: "คุณ รถตู้", receive: "3/9", due: "-" },
             
             // MU TODAY
-            { project: "MU TODAY", bu: "MU TODAY Community", task: "หยุดโฟกัส Community เน้น Partner First", detail: "พัฒนา Feature ร่วมกับหมอดู Partner", status: "🟡", nextStep: "Focus Partnership!\nSupport Partnership (Production + Content)", owner: "Team Mutoday", receive: "3/6", due: "-" },
+            { project: "MU TODAY", bu: "MU TODAY Community", task: "Partnership Focus", detail: "หยุดโฟกัส COMMUNITY และเน้นไปที่ PARTNER FIRST ก่อน แล้ว COMMUNITY จะมาเอง", status: "🟡", nextStep: "Focus Parthnership!\nSupport Partnership (Production + Content)", owner: "Team Mutoday", receive: "3/6", due: "-" },
             { project: "MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูลและการทำนาย", detail: "พัฒนา AI ต่อและ ทำ Content on Social", status: "🟡", nextStep: "หา Creative และ TIktok", owner: "Team Mutoday", receive: "2/11", due: "-" },
             
-            // OTHERS
-            { project: "CHECKIN PLUS", bu: "CHECKIN PLUS", task: "Sale Support & ระบบชำระเงิน", detail: "อนุมัติ Sale Support 4 ตำแหน่ง และระบบบัตรเครดิต", status: "🟡", nextStep: "Checkin Book (BETA) ขึ้น Beta Web ปลาย มี.ค.", owner: "คุณอิง / คุณเกน", receive: "2/6", due: "-" },
-            { project: "RIZZ UP", bu: "Content Strategy", task: "แผนงาน RIZZ UP Branding", detail: "เตรียม Content เปิดตัวแพลตฟอร์มใหม่", status: "🟡", nextStep: "สรุปทิศทางการสื่อสารและทีมงานที่เกี่ยวข้อง", owner: "Marketing Team", receive: "3/10", due: "-" },
-            { project: "THAIMART", bu: "THAIMART TRUST", task: "Business Model & TRUST Concept", detail: "Timeline: Web Beta (เม.ย.) / App (สิ้น พ.ย. 69)", status: "🟡", nextStep: "วางโครงสร้าง Branding และ Structure ของ THAIMART แล้วนำมาเสนอภายหลัง", owner: "คุณนัท", receive: "3/1", due: "-" }
+            // OTHERS / CHECKIN / RIZZUP / THAIMART
+            { project: "CHECKIN PLUS", bu: "CHECKIN PLUS", task: "Sale Support & Payment", detail: "อนุมัติ Sale Support 4 ตำแหน่ง และทำเรื่องการชำระเงินผ่านบัตรเครดิต", status: "🟡", nextStep: "Checkin Book (BETA) ขึ้น Beta Web ปลาย มี.ค.", owner: "คุณอิง และ คุณเกน", receive: "2/6", due: "-" },
+            { project: "RIZZ UP", bu: "Content Strategy", task: "Branding & Platform Launch", detail: "เตรียมแผนการสื่อสารสำหรับเปิดตัวแพลตฟอร์มใหม่", status: "🟡", nextStep: "สรุปทิศทาง Content และตารางงานทีม Production", owner: "Marketing Team", receive: "3/10", due: "-" },
+            { project: "THAIMART", bu: "THAIMART", task: "Business Model & TRUST", detail: "สรุป Business Model คอนเซปต์ THAIMART = TRUST", status: "🟡", nextStep: "พี่นัทลองวางโครงสร้าง Branding และ Structure แล้วนำมาเสนอภายหลัง", owner: "คุณ นัท MU", receive: "3/1", due: "-" }
         ];
 
         function getTheme(projectName) {
@@ -188,7 +187,7 @@
 
         function createCard(item) {
             const theme = getTheme(item.project);
-            const statusLabel = item.status === "🟡" ? "IN PROCESS" : "PENDING/ISSUE";
+            const statusLabel = item.status === "🟡" ? "IN PROCESS" : (item.status === "❌" ? "PENDING/ISSUE" : "COMPLETED");
             const statusColor = item.status === "🟡" ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-red-500/20 text-red-400 border-red-500/30";
             
             return `
@@ -206,7 +205,6 @@
                         
                         <p class="text-[12px] text-slate-400 mb-5 leading-relaxed">${item.detail || '-'}</p>
 
-                        <!-- Next Step Section: FLEX COLUMN (Vertical) -->
                         <div class="bg-white/5 p-4 rounded-2xl border border-white/5 mb-5 shadow-inner flex flex-col gap-2">
                             <span class="text-[11px] font-black ${theme.text} uppercase tracking-widest flex items-center gap-2">
                                 <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i>
@@ -260,9 +258,9 @@
                     if (maxScroll > 0) {
                         el.scrollTop += scrollSpeed * direction;
                         if (direction === 1 && el.scrollTop >= maxScroll - 0.5) {
-                            pauseTime = 400; // หยุดนานขึ้นเพื่อให้คนอ่าน
+                            pauseTime = 400; 
                             direction = -1;
-                            scrollSpeed = 5; // รูดขึ้นเร็ว
+                            scrollSpeed = 5; 
                         } 
                         else if (direction === -1 && el.scrollTop <= 0.5) {
                             pauseTime = 180;
