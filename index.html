@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Dashboard - Branded Themes</title>
+    <title>Project Monitoring Dashboard - TV Optimized</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
@@ -11,189 +11,143 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #f1f5f9; overflow: hidden; height: 100vh; }
+        body { font-family: 'Kanit', sans-serif; background-color: #0f172a; overflow: hidden; height: 100vh; color: white; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .main-dashboard-grid { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 20px; 
-            height: calc(100vh - 120px); 
-            padding-bottom: 20px; 
+            gap: 24px; 
+            height: calc(100vh - 140px); 
+            padding: 0 10px 20px 10px;
         }
 
         .project-column { 
             display: flex; 
             flex-direction: column; 
-            gap: 16px; 
+            gap: 20px; 
             overflow-y: auto; 
-            padding: 0 4px 20px 4px;
+            padding-bottom: 100px;
             scroll-behavior: smooth;
         }
 
         .column-header-sticky {
             position: sticky;
             top: 0;
-            background: #f1f5f9;
+            background: #0f172a;
             z-index: 30;
             padding: 10px 0;
-            margin-bottom: 4px;
         }
 
         .project-card { 
-            border-radius: 16px; 
+            border-radius: 24px; 
             overflow: hidden;
-            box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08); 
-            background-color: white; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            height: fit-content;
         }
 
-        .project-card:hover { 
-            transform: translateY(-4px); 
-            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15); 
-        }
-
-        .card-header {
-            padding: 10px 14px;
-            color: white;
+        /* Fixed Header Padding & Layout */
+        .card-header-branded {
+            padding: 16px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        
-        .progress-container { 
-            height: 10px; 
-            background-color: rgba(0,0,0,0.1); 
-            border-radius: 10px; 
-            overflow: hidden; 
-            width: 100%; 
-            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .progress-bar { 
-            height: 100%; 
-            transition: width 1.5s ease-in-out; 
-            border-radius: 10px; 
-            box-shadow: 0 0 8px rgba(0,0,0,0.1);
-        }
-        
-        /* Theme Specifics */
-        .theme-lottery { background-color: rgba(239, 68, 68, 0.08); } 
+        /* Theme Colors */
         .bg-lottery { background-color: #ef4444; }
-        .text-lottery { color: #b91c1c; }
+        .text-lottery { color: #fca5a5; }
 
-        .theme-mu { background-color: rgba(168, 85, 247, 0.08); } 
         .bg-mu { background-color: #a855f7; }
-        .text-mu { color: #7e22ce; }
+        .text-mu { color: #d8b4fe; }
 
-        .theme-checkin { background-color: rgba(234, 179, 8, 0.08); } 
         .bg-checkin { background-color: #eab308; }
-        .text-checkin { color: #854d0e; }
+        .text-checkin { color: #fef08a; }
 
-        .theme-thaimart { background-color: rgba(59, 130, 246, 0.08); } 
-        .bg-thaimart { background-color: #3b82f6; }
-        .text-thaimart { color: #1d4ed8; }
-
-        .theme-rizzup { background-color: rgba(236, 72, 153, 0.08); } 
         .bg-rizzup { background-color: #ec4899; }
-        .text-rizzup { color: #be185d; }
+        .text-rizzup { color: #fbcfe8; }
 
-        .theme-cashflow { background-color: rgba(34, 197, 94, 0.08); } 
-        .bg-cashflow { background-color: #22c55e; }
-        .text-cashflow { color: #15803d; }
+        .bg-thaimart { background-color: #3b82f6; }
+        .text-thaimart { color: #93c5fd; }
 
-        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .bg-mixed { background-color: #64748b; }
+        .text-mixed { color: #cbd5e1; }
+
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         .live-pulse { animation: pulse-soft 2s infinite; }
-
-        /* Fullscreen Button Styles */
-        .fullscreen-btn {
-            transition: all 0.2s;
-        }
-        .fullscreen-btn:hover {
-            background-color: #f8fafc;
-            transform: scale(1.05);
-        }
-        .fullscreen-btn:active {
-            transform: scale(0.95);
-        }
     </style>
 </head>
-<body class="text-slate-900 p-4 md:p-6">
+<body class="p-6">
 
     <div id="app" class="h-full flex flex-col">
-        <!-- Dashboard Header -->
-        <header class="flex items-center justify-between mb-6 bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <div class="flex items-center gap-4">
-                <div class="bg-indigo-600 text-white p-3 rounded-2xl shadow-lg shadow-indigo-100">
-                    <i data-lucide="layout-dashboard" class="w-7 h-7"></i>
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8 bg-slate-800/50 p-6 rounded-3xl border border-white/5 shadow-2xl">
+            <div class="flex items-center gap-5">
+                <div class="bg-indigo-600 p-4 rounded-2xl shadow-lg shadow-indigo-500/20">
+                    <i data-lucide="monitor" class="w-8 h-8 text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-black text-slate-800 leading-none uppercase">Project Monitoring</h1>
-                    <div class="flex items-center gap-2 mt-1.5">
-                        <span id="current-date-display" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest"></span>
-                        <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
-                        <span class="text-[11px] font-bold text-emerald-500 uppercase tracking-widest live-pulse">Live Status</span>
+                    <h1 class="text-2xl font-black uppercase tracking-tight">Project Monitoring Dashboard</h1>
+                    <div class="flex items-center gap-3 mt-1">
+                        <span id="current-date-display" class="text-sm font-bold text-slate-400"></span>
+                        <div class="flex items-center gap-2 px-3 py-0.5 bg-emerald-500/20 rounded-full border border-emerald-500/30">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full live-pulse"></span>
+                            <span class="text-[12px] font-black text-emerald-400 uppercase tracking-widest">System Live</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-8">
-                <div class="text-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Actions</p>
-                    <p id="totalTasks" class="text-2xl font-black text-slate-800 leading-none">0</p>
+            <div class="flex items-center gap-10">
+                <div class="text-right">
+                    <p class="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-1">Active Tasks</p>
+                    <p id="totalTasks" class="text-4xl font-black leading-none text-white">0</p>
                 </div>
-                <div class="h-10 w-[1px] bg-slate-100"></div>
-                <div class="text-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">In-Process</p>
-                    <p id="pendingCount" class="text-2xl font-black text-amber-500 leading-none">0</p>
-                </div>
-                <div class="h-10 w-[1px] bg-slate-100"></div>
-                
-                <!-- Fullscreen Button -->
-                <button onclick="toggleFullScreen()" class="fullscreen-btn flex flex-col items-center justify-center p-2 rounded-xl border border-slate-100 bg-white shadow-sm hover:shadow-md min-w-[80px]">
-                    <i data-lucide="maximize" id="fullscreen-icon" class="w-5 h-5 text-slate-600 mb-1"></i>
-                    <span id="fullscreen-text" class="text-[8px] font-black text-slate-400 uppercase">Full Screen</span>
+                <div class="h-12 w-[1px] bg-white/10"></div>
+                <button onclick="toggleFullScreen()" class="p-4 bg-white/5 rounded-2xl hover:bg-white/10 border border-white/10 transition-all active:scale-95">
+                    <i data-lucide="maximize" class="w-6 h-6 text-slate-400"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Grid Container -->
+        <!-- Columns -->
         <div class="main-dashboard-grid">
-            <!-- Column 1: Lottery Plus -->
+            <!-- Column 1 -->
             <div id="col-1" class="project-column hide-scrollbar">
                 <div class="column-header-sticky">
-                    <div class="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-xl shadow-md">
-                        <i data-lucide="ticket" class="w-4 h-4"></i>
-                        <span class="text-[12px] font-black tracking-widest">LOTTERY PLUS</span>
+                    <div class="flex items-center gap-3 bg-red-600 px-6 py-4 rounded-2xl shadow-lg shadow-red-900/20">
+                        <i data-lucide="ticket" class="w-6 h-6"></i>
+                        <span class="text-lg font-black uppercase tracking-widest">1. Lottery Plus</span>
                     </div>
                 </div>
-                <div id="lotteryGrid" class="flex flex-col gap-4"></div>
+                <div id="lotteryGrid" class="flex flex-col gap-5"></div>
             </div>
 
-            <!-- Column 2: Mu Today -->
+            <!-- Column 2 -->
             <div id="col-2" class="project-column hide-scrollbar">
                 <div class="column-header-sticky">
-                    <div class="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl shadow-md">
-                        <i data-lucide="sparkles" class="w-4 h-4"></i>
-                        <span class="text-[12px] font-black tracking-widest">MU TODAY</span>
+                    <div class="flex items-center gap-3 bg-purple-600 px-6 py-4 rounded-2xl shadow-lg shadow-purple-900/20">
+                        <i data-lucide="sparkles" class="w-6 h-6"></i>
+                        <span class="text-lg font-black uppercase tracking-widest">2. Mu Today</span>
                     </div>
                 </div>
-                <div id="muGrid" class="flex flex-col gap-4"></div>
+                <div id="muGrid" class="flex flex-col gap-5"></div>
             </div>
 
-            <!-- Column 3: Mixed Projects -->
+            <!-- Column 3 -->
             <div id="col-3" class="project-column hide-scrollbar">
                 <div class="column-header-sticky">
-                    <div class="flex items-center gap-2 bg-slate-700 text-white px-4 py-2 rounded-xl shadow-md">
-                        <i data-lucide="layers" class="w-4 h-4"></i>
-                        <span class="text-[12px] font-black tracking-widest">MIXED PROJECTS</span>
+                    <div class="flex items-center gap-3 bg-slate-700 px-6 py-4 rounded-2xl shadow-lg shadow-slate-900/20">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                        <span class="text-lg font-black uppercase tracking-widest">3. Others / Checkin / RizzUp</span>
                     </div>
                 </div>
-                <div id="mixedGrid" class="flex flex-col gap-4"></div>
+                <div id="mixedGrid" class="flex flex-col gap-5"></div>
             </div>
         </div>
     </div>
@@ -202,119 +156,86 @@
         dayjs.extend(window.dayjs_plugin_customParseFormat);
         dayjs.locale('th');
 
-        const SIMULATED_NOW = dayjs('2026-03-19');
-
         const rawData = [
-            { id: 1, project: "LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", receive: "2/27", due: "-" },
-            { id: 2, project: "LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book", nextStep: "รอทางทีม We Compound Book คิว", receive: "2/6", due: "-" },
-            { id: 3, project: "LOTTERY PLUS", bu: "Event: Racing", task: "Agenda วันซ้อม/วันแข่ง", nextStep: "ซ้อมครั้งต่อไป simulator ดูการเข้าเกียร์", receive: "3/6", due: "4/15" },
-            { id: 4, project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", nextStep: "MONO จะปรับ Road map และสรุป Requirement", receive: "3/5", due: "3/23" },
-            { id: 5, project: "LOTTERY PLUS", bu: "Event: Happy bus", task: "กิจกรรมรถบัสความสุข", nextStep: "กำลังดำเนินการ ได้ 400/500 ขยายเวลาลงทะเบียนแล้ว", receive: "2/20", due: "4/10" },
-            { id: 10, project: "MU TODAY", bu: "MU Community", task: "Partner First Strategy", nextStep: "Support Content ให้ Partner หลัก", receive: "3/6", due: "-" },
-            { id: 11, project: "MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูล AI มู", nextStep: "หา Creative และ Tiktok เพิ่ม", receive: "2/11", due: "3/25" },
-            { id: 20, project: "CHECKIN PLUS", bu: "Payments", task: "ระบบชำระเงินบัตรเครดิต", nextStep: "Checkin Book Beta ปลาย มี.ค.", receive: "2/6", due: "3/31" },
-            { id: 30, project: "THAIMART", bu: "Brand", task: "Concept 'TRUST'", nextStep: "รอดู Brandbook จาก Lottery Plus", receive: "3/1", due: "4/30" },
-            { id: 40, project: "RIZZ UP", bu: "Marketing", task: "Campaign Launch", nextStep: "สรุปแผนงานเปิดตัวเมษายน", receive: "3/10", due: "4/5" },
-            { id: 50, project: "CASHFLOW GAME", bu: "Dev", task: "Beta Multi-player", nextStep: "ทดสอบความเสถียรของ Server", receive: "3/5", due: "3/28" }
+            // LOTTERY PLUS
+            { project: "LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY Online/Offline", detail: "การที่จะทำให้ COMMUNITY FIRST ทำยังไง มีกี่แบบ อะไรบ้าง และในแต่ละแบบทำยังไงแบบเป็นขั้นเป็นตอน ใครรับผิดชอบ ใครประสานงานทั้งหมดในทุกฝ่ายในทุกแผนก", status: "🟡", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", owner: "CMO", receive: "2/27", due: "-" },
+            { project: "LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book", detail: "รอทางทีม We Compound Brand ปรับปรุงจาก Comment", status: "❌", nextStep: "รอทางทีม We Compound Book คิว", owner: "We Compound", receive: "2/6", due: "-" },
+            { project: "LOTTERY PLUS", bu: "MKT Structure", task: "CEO อนุมัติแผนโครงสร้างทีมใหม่แล้ว", detail: "ประสาน HR ทำ JD และสรรหาคนเพิ่ม", status: "🟡", nextStep: "Creator in resident CMO(พี่อิท) จะไปจัดการเงื่อนไข กรอบเวลา และแนวทางมาเสนอภายหลัง", owner: "CMO", receive: "3/5", due: "-" },
+            { project: "LOTTERY PLUS", bu: "Event: Happy bus", task: "กิจกรรมรถบัสความสุข (Happy Bus)", detail: "สื่อสารถึงลูกค้าและ รอรวมรวบยอดทั้งหมด", status: "🟡", nextStep: "กำลังดำเนินการ ตอนนี้ได้ 400/500 และมีการขยายเวลาลงทะเบียนแล้ว", owner: "Event", receive: "2/20", due: "4/10" },
+            { project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", detail: "สรุปงบประมาณและรายละเอียดกิจกรรมทั้งหมด และรอคุยกับทาง MONO", status: "🟡", nextStep: "MONO จะปรับ Road map และ สรุป Reqirement ตามที่ทีม และ CEO Prove", owner: "MONO", receive: "3/5", due: "3/23" },
+            { project: "LOTTERY PLUS", bu: "The Next Gen (คุณ SOFT)", task: "โปรแกรมพัฒนาบุคลากร", detail: "Camp: อบรมเสร็จแล้ว และ อนุมัติงบประมาณทำ BrandBook แล้ว", status: "🟡", nextStep: "รอประชุม Brand book กับคุณซอฟ", owner: "คุณ SOFT", receive: "3/5", due: "3/25" },
+            { project: "LOTTERY PLUS", bu: "HR team", task: "สรุป แผนโครงสร้าง TEAM", detail: "รอนัดครั้งถัดไป", status: "🟡", nextStep: "รอคุณ รถตู้ นัด MEETING", owner: "คุณ รถตู้", receive: "3/9", due: "-" },
+            
+            // MU TODAY
+            { project: "MU TODAY", bu: "MU TODAY Community", task: "หยุดโฟกัส Community เน้น Partner First", detail: "พัฒนา Feature ร่วมกับหมอดู Partner", status: "🟡", nextStep: "Focus Partnership!\nSupport Partnership (Production + Content)", owner: "Team Mutoday", receive: "3/6", due: "-" },
+            { project: "MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูลและการทำนาย", detail: "พัฒนา AI ต่อและ ทำ Content on Social", status: "🟡", nextStep: "หา Creative และ TIktok", owner: "Team Mutoday", receive: "2/11", due: "-" },
+            
+            // OTHERS
+            { project: "CHECKIN PLUS", bu: "CHECKIN PLUS", task: "Sale Support & ระบบชำระเงิน", detail: "อนุมัติ Sale Support 4 ตำแหน่ง และระบบบัตรเครดิต", status: "🟡", nextStep: "Checkin Book (BETA) ขึ้น Beta Web ปลาย มี.ค.", owner: "คุณอิง / คุณเกน", receive: "2/6", due: "-" },
+            { project: "RIZZ UP", bu: "Content Strategy", task: "แผนงาน RIZZ UP Branding", detail: "เตรียม Content เปิดตัวแพลตฟอร์มใหม่", status: "🟡", nextStep: "สรุปทิศทางการสื่อสารและทีมงานที่เกี่ยวข้อง", owner: "Marketing Team", receive: "3/10", due: "-" },
+            { project: "THAIMART", bu: "THAIMART TRUST", task: "Business Model & TRUST Concept", detail: "Timeline: Web Beta (เม.ย.) / App (สิ้น พ.ย. 69)", status: "🟡", nextStep: "วางโครงสร้าง Branding และ Structure ของ THAIMART แล้วนำมาเสนอภายหลัง", owner: "คุณนัท", receive: "3/1", due: "-" }
         ];
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement &&    // alternative standard method
-                !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.msRequestFullscreen) {
-                    document.documentElement.msRequestFullscreen();
-                } else if (document.documentElement.mozRequestFullScreen) {
-                    document.documentElement.mozRequestFullScreen();
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                }
-                updateFullscreenUI(true);
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                } else if (document.mozCancelFullScreen) {
-                    document.mozCancelFullScreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-                updateFullscreenUI(false);
-            }
-        }
-
-        function updateFullscreenUI(isFull) {
-            const icon = document.getElementById('fullscreen-icon');
-            const text = document.getElementById('fullscreen-text');
-            if (isFull) {
-                icon.setAttribute('data-lucide', 'minimize');
-                text.innerText = 'Exit Full';
-            } else {
-                icon.setAttribute('data-lucide', 'maximize');
-                text.innerText = 'Full Screen';
-            }
-            lucide.createIcons();
-        }
-
-        // ฟังเหตุการณ์การเปลี่ยนหน้าจอ (กรณีผู้ใช้กด Esc)
-        document.addEventListener('fullscreenchange', () => updateFullscreenUI(!!document.fullscreenElement));
-        document.addEventListener('webkitfullscreenchange', () => updateFullscreenUI(!!document.webkitFullscreenElement));
-        document.addEventListener('mozfullscreenchange', () => updateFullscreenUI(!!document.mozFullScreenElement));
-        document.addEventListener('MSFullscreenChange', () => updateFullscreenUI(!!document.msFullscreenElement));
 
         function getTheme(projectName) {
             const name = projectName.toUpperCase();
-            if (name.includes("LOTTERY")) return { theme: "theme-lottery", bg: "bg-lottery", text: "text-lottery", hex: "#ef4444" };
-            if (name.includes("MU TODAY")) return { theme: "theme-mu", bg: "bg-mu", text: "text-mu", hex: "#a855f7" };
-            if (name.includes("CHECKIN")) return { theme: "theme-checkin", bg: "bg-checkin", text: "text-checkin", hex: "#eab308" };
-            if (name.includes("THAIMART")) return { theme: "theme-thaimart", bg: "bg-thaimart", text: "text-thaimart", hex: "#3b82f6" };
-            if (name.includes("RIZZ UP")) return { theme: "theme-rizzup", bg: "bg-rizzup", text: "text-rizzup", hex: "#ec4899" };
-            if (name.includes("CASHFLOW")) return { theme: "theme-cashflow", bg: "bg-cashflow", text: "text-cashflow", hex: "#22c55e" };
-            return { theme: "bg-slate-50", bg: "bg-slate-500", text: "text-slate-600", hex: "#64748b" };
+            if (name.includes("LOTTERY")) return { bg: "bg-lottery", text: "text-lottery" };
+            if (name.includes("MU")) return { bg: "bg-mu", text: "text-mu" };
+            if (name.includes("CHECKIN")) return { bg: "bg-checkin", text: "text-checkin" };
+            if (name.includes("RIZZ")) return { bg: "bg-rizzup", text: "text-rizzup" };
+            if (name.includes("THAI")) return { bg: "bg-thaimart", text: "text-thaimart" };
+            return { bg: "bg-mixed", text: "text-mixed" };
         }
 
         function createCard(item) {
             const theme = getTheme(item.project);
-            const progress = Math.floor(Math.random() * 40) + 30; 
-
+            const statusLabel = item.status === "🟡" ? "IN PROCESS" : "PENDING/ISSUE";
+            const statusColor = item.status === "🟡" ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-red-500/20 text-red-400 border-red-500/30";
+            
             return `
-                <div class="project-card ${theme.theme}">
-                    <div class="card-header ${theme.bg}">
-                        <span class="text-[9px] font-black uppercase tracking-tighter">${item.project}</span>
-                        <span class="text-[9px] font-bold bg-white/20 px-2 py-0.5 rounded-full uppercase">Pending</span>
+                <div class="project-card">
+                    <div class="card-header-branded ${theme.bg}">
+                        <span class="text-[11px] font-black uppercase tracking-[0.2em] text-white/90">${item.project}</span>
+                        <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-black/30 text-white border border-white/10 shadow-sm">${statusLabel}</span>
                     </div>
-                    
-                    <div class="p-4 flex flex-col gap-3">
-                        <div>
-                            <p class="text-[10px] font-black ${theme.text} uppercase tracking-widest mb-0.5">${item.bu}</p>
-                            <h3 class="text-[13px] font-bold text-slate-800 leading-snug line-clamp-1">${item.task}</h3>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-3">
+                            <p class="text-[12px] font-bold ${theme.text} uppercase tracking-wider">${item.bu}</p>
+                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg border ${statusColor} shadow-sm">${statusLabel}</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3 leading-tight">${item.task}</h3>
+                        
+                        <p class="text-[12px] text-slate-400 mb-5 leading-relaxed">${item.detail || '-'}</p>
+
+                        <!-- Next Step Section: FLEX COLUMN (Vertical) -->
+                        <div class="bg-white/5 p-4 rounded-2xl border border-white/5 mb-5 shadow-inner flex flex-col gap-2">
+                            <span class="text-[11px] font-black ${theme.text} uppercase tracking-widest flex items-center gap-2">
+                                <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i>
+                                Next Step
+                            </span>
+                            <p class="text-[14px] font-medium text-slate-100 leading-relaxed whitespace-pre-line">${item.nextStep || '-'}</p>
                         </div>
 
-                        <div class="bg-white/60 backdrop-blur-sm p-3 rounded-xl border border-white/40 shadow-sm">
-                            <p class="text-[10px] font-semibold text-slate-600 leading-relaxed italic">
-                                <span class="${theme.text} font-black not-italic">NEXT:</span> ${item.nextStep}
-                            </p>
-                        </div>
-
-                        <div class="space-y-1.5 mt-1">
-                            <div class="flex justify-between items-end">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase">Progress</span>
-                                <span class="text-[10px] font-black ${theme.text}">${progress}%</span>
-                            </div>
-                            <div class="progress-container">
-                                <div class="progress-bar ${theme.bg}" style="width: ${progress}%"></div>
+                        <div class="flex flex-col gap-4 pt-5 border-t border-white/5">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-2xl bg-slate-700/50 flex items-center justify-center border border-white/10 shadow-lg">
+                                        <i data-lucide="user-2" class="w-6 h-6 text-white/80"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase leading-none mb-1.5 tracking-tighter">Person in charge</p>
+                                        <p class="text-[15px] font-black text-slate-100">${item.owner || '-'}</p>
+                                    </div>
+                                </div>
                             </div>
                             
-                            <div class="flex justify-between items-center pt-2 mt-1 border-t border-black/5">
-                                <div class="flex flex-col">
-                                    <span class="text-[8px] font-black text-slate-400 uppercase leading-none mb-0.5">วันสั่งงาน</span>
-                                    <span class="text-[11px] font-black ${theme.text}">${item.receive}</span>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-black/20 p-3 rounded-2xl border border-white/5">
+                                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Received</p>
+                                    <p class="text-[14px] font-black ${theme.text}">${item.receive || '-'}</p>
                                 </div>
-                                <div class="flex flex-col items-end">
-                                    <span class="text-[8px] font-black text-slate-400 uppercase leading-none mb-0.5">DEADLINE</span>
-                                    <span class="text-[11px] font-black ${theme.text}">${item.due}</span>
+                                <div class="bg-black/20 p-3 rounded-2xl border border-white/5 text-right">
+                                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Deadline</p>
+                                    <p class="text-[14px] font-black ${theme.text}">${item.due || '-'}</p>
                                 </div>
                             </div>
                         </div>
@@ -323,41 +244,50 @@
             `;
         }
 
-        function initAutoScroll(id) {
-            const el = document.getElementById(id);
-            let dir = 1;
-            let isPaused = false;
+        function initTVScroll(containerId) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+
+            let scrollSpeed = 0.65; 
+            let direction = 1; 
+            let pauseTime = 0;
             
-            setInterval(() => {
-                if (isPaused) return;
-                const canScroll = el.scrollHeight > (el.clientHeight + 10);
-                if (canScroll) {
-                    el.scrollTop += (0.8 * dir);
-                    if (dir === 1 && (el.scrollTop + el.clientHeight >= el.scrollHeight - 5)) {
-                        isPaused = true;
-                        setTimeout(() => { dir = -1; isPaused = false; }, 4000);
-                    }
-                    if (dir === -1 && el.scrollTop <= 5) {
-                        isPaused = true;
-                        setTimeout(() => { dir = 1; isPaused = false; }, 4000);
+            function step() {
+                if (pauseTime > 0) {
+                    pauseTime--;
+                } else {
+                    const maxScroll = el.scrollHeight - el.clientHeight;
+                    if (maxScroll > 0) {
+                        el.scrollTop += scrollSpeed * direction;
+                        if (direction === 1 && el.scrollTop >= maxScroll - 0.5) {
+                            pauseTime = 400; // หยุดนานขึ้นเพื่อให้คนอ่าน
+                            direction = -1;
+                            scrollSpeed = 5; // รูดขึ้นเร็ว
+                        } 
+                        else if (direction === -1 && el.scrollTop <= 0.5) {
+                            pauseTime = 180;
+                            direction = 1;
+                            scrollSpeed = 0.65;
+                        }
                     }
                 }
-            }, 30);
+                requestAnimationFrame(step);
+            }
+            setTimeout(() => requestAnimationFrame(step), 4000);
+        }
 
-            el.addEventListener('mouseenter', () => isPaused = true);
-            el.addEventListener('mouseleave', () => isPaused = false);
-            el.addEventListener('touchstart', () => isPaused = true);
-            el.addEventListener('touchend', () => isPaused = false);
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
         }
 
         function render() {
-            document.getElementById('current-date-display').innerText = SIMULATED_NOW.format('DD MMMM YYYY');
+            document.getElementById('current-date-display').innerText = dayjs().format('DD MMMM YYYY');
             document.getElementById('totalTasks').innerText = rawData.length;
-            document.getElementById('pendingCount').innerText = rawData.length;
 
-            const lottery = rawData.filter(i => i.project.includes("LOTTERY"));
-            const mu = rawData.filter(i => i.project.includes("MU TODAY"));
-            const mixed = rawData.filter(i => !i.project.includes("LOTTERY") && !i.project.includes("MU TODAY"));
+            const lottery = rawData.filter(i => i.project.toUpperCase().includes("LOTTERY"));
+            const mu = rawData.filter(i => i.project.toUpperCase().includes("MU"));
+            const mixed = rawData.filter(i => !i.project.toUpperCase().includes("LOTTERY") && !i.project.toUpperCase().includes("MU"));
 
             document.getElementById('lotteryGrid').innerHTML = lottery.map(createCard).join('');
             document.getElementById('muGrid').innerHTML = mu.map(createCard).join('');
@@ -368,11 +298,9 @@
 
         window.onload = () => {
             render();
-            setTimeout(() => {
-                initAutoScroll('col-1');
-                initAutoScroll('col-2');
-                initAutoScroll('col-3');
-            }, 2000);
+            initTVScroll('col-1');
+            initTVScroll('col-2');
+            initTVScroll('col-3');
         };
     </script>
 </body>
