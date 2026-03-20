@@ -2,8 +2,8 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Monitoring Dashboard - Final Sync</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Project Monitoring Dashboard - Update Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
@@ -11,24 +11,49 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #020617; overflow: hidden; height: 100vh; color: white; }
-        
-        .main-dashboard-grid { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 20px; 
-            height: calc(100vh - 140px); 
-            padding: 0 10px;
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            background-color: #020617; 
+            color: white; 
+            margin: 0; 
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .project-column { 
-            display: flex; 
-            flex-direction: column; 
-            overflow: hidden;
-            background: rgba(15, 23, 42, 0.3);
-            border-radius: 24px;
+        /* Desktop specific */
+        @media (min-width: 1025px) {
+            body { overflow: hidden; height: 100vh; }
+            .main-dashboard-grid { 
+                display: grid; 
+                grid-template-columns: repeat(3, 1fr); 
+                gap: 24px; 
+                height: calc(100vh - 140px); 
+                padding: 0 20px;
+            }
+            .scroll-content {
+                animation: scroll-vertical linear infinite;
+            }
+            .project-column {
+                display: flex !important;
+                background: rgba(15, 23, 42, 0.3);
+                border-radius: 24px;
+                flex-direction: column;
+                overflow: hidden;
+            }
         }
 
+        /* Mobile specific */
+        @media (max-width: 1024px) {
+            body { overflow-y: auto; padding-bottom: 100px; }
+            .main-dashboard-grid { display: block; padding: 12px; }
+            .project-column { display: none; width: 100%; border-radius: 24px; overflow: hidden; margin-bottom: 20px; }
+            .project-column.active { display: flex; flex-direction: column; }
+            .scroll-content { animation: none !important; padding: 16px 0; }
+            .scroll-container { overflow: visible !important; mask-image: none !important; }
+            .tab-bar { display: flex !important; }
+        }
+
+        /* Layout Elements */
         .scroll-container {
             flex: 1;
             overflow: hidden;
@@ -41,7 +66,6 @@
             flex-direction: column;
             gap: 20px;
             padding: 20px 10px;
-            animation: scroll-vertical linear infinite;
         }
 
         @keyframes scroll-vertical {
@@ -49,12 +73,17 @@
             100% { transform: translateY(-50%); }
         }
 
+        .scroll-container:hover .scroll-content {
+            animation-play-state: paused;
+        }
+
+        /* Card & Effects */
         .project-card { 
             border-radius: 24px; 
             background: rgba(30, 41, 59, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease;
         }
 
         .progress-track {
@@ -75,7 +104,7 @@
         .shimmer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             animation: shimmer-effect 2s infinite linear;
             background-size: 200% 100%;
         }
@@ -85,7 +114,7 @@
             100% { transform: translateX(100%); }
         }
 
-        /* Themes */
+        /* --- THEMES --- */
         .theme-red { border-left: 6px solid #ef4444; }
         .theme-red .bar { background: linear-gradient(90deg, #b91c1c, #ef4444); }
         .theme-red .text-accent { color: #f87171; }
@@ -128,96 +157,121 @@
         .theme-slate .bg-accent { background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(100, 116, 139, 0.2); }
         .theme-slate .text-theme { color: #cbd5e1; }
 
-        /* Status colors */
         .status-inprogress { background: #d97706 !important; color: white !important; }
-        .status-waiting { background: #475569 !important; color: #cbd5e1 !important; }
-        .status-live { background: #16a34a !important; color: white !important; }
-        .status-planning { background: #2563eb !important; color: white !important; }
-        .status-pending { background: #9333ea !important; color: white !important; }
         .status-rejected { background: #dc2626 !important; color: white !important; }
 
-        .next-step-highlight { border-radius: 16px; padding: 12px 16px; margin-top: 12px; }
-        .btn-fullscreen { transition: all 0.2s ease; }
+        .tab-bar {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            background: #0f172a;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 0;
+            z-index: 1000;
+            justify-content: space-around;
+        }
+
+        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #64748b; flex: 1; }
+        .tab-item.active { color: white; }
+        .tab-item.active.red { color: #f87171; }
+        .tab-item.active.purple { color: #c084fc; }
+        .tab-item.active.slate { color: #cbd5e1; }
+        .tab-item span { font-size: 10px; font-weight: 800; }
     </style>
 </head>
-<body class="p-4">
+<body class="p-2 md:p-4">
 
-    <div id="app" class="h-full flex flex-col">
-        <header class="flex items-center justify-between mb-6 px-4 py-3 bg-slate-900/50 rounded-3xl border border-white/5">
-            <div class="flex items-center gap-4">
-                <div class="bg-indigo-600 p-3 rounded-2xl shadow-lg">
-                    <i data-lucide="layout-grid" class="w-6 h-6 text-white"></i>
+    <div id="app" class="h-full flex flex-col min-h-screen">
+        <header class="flex items-center justify-between mb-4 md:mb-6 px-4 py-3 bg-slate-900/50 rounded-3xl border border-white/5">
+            <div class="flex items-center gap-3 md:gap-4">
+                <div class="bg-indigo-600 p-2 md:p-3 rounded-2xl shadow-lg">
+                    <i data-lucide="layout-grid" class="w-5 h-5 md:w-6 md:h-6 text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black italic tracking-tighter uppercase text-white">Project Monitoring</h1>
-                    <p id="current-date-display" class="text-xs font-bold text-slate-500 uppercase"></p>
+                    <h1 class="text-lg md:text-2xl font-black italic tracking-tighter uppercase text-white leading-none">Project Monitoring</h1>
+                    <p id="current-date-display" class="text-[10px] md:text-xs font-bold text-slate-500 uppercase mt-1"></p>
                 </div>
             </div>
-            <div class="flex gap-6 items-center">
-                <div class="text-right">
-                    <span class="text-[10px] font-bold text-slate-500 block">SYSTEM STATUS</span>
-                    <span class="text-sm font-black text-emerald-400 uppercase">LAST UPDATE 20 /3"(ถ้าหากมี Update เพิ่มเติมติดต่อ WAYU)"</span>
+            <div class="flex gap-4 items-center">
+                <div class="hidden md:block text-right">
+                    <span class="text-[10px] font-bold text-slate-500 block uppercase">System Status</span>
+                    <span class="text-[11px] font-black text-emerald-400 uppercase tracking-tight">Last Update: 20/03/69 (Update เพิ่มเติม ติดต่อ WAYU) <span class="text-[11px] font-black text-red-500 uppercase tracking-tight"> >> หากต้องการหยุดอ่าน Card กรุณานำ Cursor Remote ชี้ที่ Card ครับ</span> </span> 
                 </div>
-                <div class="h-10 w-[1px] bg-white/10"></div>
-                <button onclick="toggleFullScreen()" class="btn-fullscreen flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 text-slate-300">
+                <button onclick="toggleFullScreen()" class="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 text-slate-300 hover:bg-white/10 transition-all">
                     <i data-lucide="maximize" class="w-4 h-4"></i>
-                    <span class="text-[10px] font-black tracking-widest uppercase">Fullscreen</span>
+                    <span class="text-[10px] font-black tracking-widest uppercase text-[9px]">Fullscreen</span>
                 </button>
             </div>
         </header>
 
-        <div class="main-dashboard-grid">
+        <div class="main-dashboard-grid" id="main-grid">
             <!-- 1. Lottery Plus -->
-            <div class="project-column">
-                <div class="px-6 py-4 bg-red-600/90 rounded-t-2xl flex justify-between items-center shadow-lg">
+            <section class="project-column active" id="path-1">
+                <div class="px-6 py-4 bg-red-600/90 md:rounded-t-2xl flex justify-between items-center shadow-lg rounded-2xl md:rounded-none">
                     <div class="flex items-center gap-3">
                         <i data-lucide="ticket" class="w-5 h-5 text-white"></i>
-                        <span class="font-black text-white tracking-widest uppercase text-lg">Lottery Plus & HR</span>
+                        <span class="font-black text-white tracking-widest uppercase text-base md:text-lg">Lottery Plus & HR</span>
                     </div>
-                    <span id="count-1" class="text-xs bg-black/30 px-2 py-0.5 rounded-full font-bold">0</span>
+                    <span id="count-1" class="text-[10px] bg-black/30 px-2 py-0.5 rounded-full font-bold">0</span>
                 </div>
-                <div class="scroll-container" id="container-1">
+                <div class="scroll-container">
                     <div id="grid-1" class="scroll-content"></div>
                 </div>
-            </div>
+            </section>
 
             <!-- 2. Mu Today -->
-            <div class="project-column">
-                <div class="px-6 py-4 bg-purple-600/90 rounded-t-2xl flex justify-between items-center shadow-lg">
+            <section class="project-column" id="path-2">
+                <div class="px-6 py-4 bg-purple-600/90 md:rounded-t-2xl flex justify-between items-center shadow-lg rounded-2xl md:rounded-none">
                     <div class="flex items-center gap-3">
                         <i data-lucide="moon" class="w-5 h-5 text-white"></i>
-                        <span class="font-black text-white tracking-widest uppercase text-lg">Mu Today</span>
+                        <span class="font-black text-white tracking-widest uppercase text-base md:text-lg">Mu Today</span>
                     </div>
-                    <span id="count-2" class="text-xs bg-black/30 px-2 py-0.5 rounded-full font-bold">0</span>
+                    <span id="count-2" class="text-[10px] bg-black/30 px-2 py-0.5 rounded-full font-bold">0</span>
                 </div>
-                <div class="scroll-container" id="container-2">
+                <div class="scroll-container">
                     <div id="grid-2" class="scroll-content"></div>
                 </div>
-            </div>
+            </section>
 
             <!-- 3. Others -->
-            <div class="project-column">
-                <div class="px-6 py-4 bg-slate-700/90 rounded-t-2xl flex justify-between items-center shadow-lg">
+            <section class="project-column" id="path-3">
+                <div class="px-6 py-4 bg-slate-700/90 md:rounded-t-2xl flex justify-between items-center shadow-lg rounded-2xl md:rounded-none">
                     <div class="flex items-center gap-3">
                         <i data-lucide="layers" class="w-5 h-5 text-white"></i>
-                        <span class="font-black text-white tracking-widest uppercase text-lg">Others</span>
+                        <span class="font-black text-white tracking-widest uppercase text-base md:text-lg">Others</span>
                     </div>
-                    <span id="count-3" class="text-xs bg-black/30 px-2 py-0.5 rounded-full font-bold">0</span>
+                    <span id="count-3" class="text-[10px] bg-black/30 px-2 py-0.5 rounded-full font-bold">0</span>
                 </div>
-                <div class="scroll-container" id="container-3">
+                <div class="scroll-container">
                     <div id="grid-3" class="scroll-content"></div>
                 </div>
-            </div>
+            </section>
         </div>
+
+        <!-- Mobile Tab Bar -->
+        <nav class="tab-bar">
+            <button class="tab-item active red" onclick="navigate(1)">
+                <i data-lucide="ticket" class="w-6 h-6"></i>
+                <span>LOTTERY</span>
+            </button>
+            <button class="tab-item" id="nav-2" onclick="navigate(2)">
+                <i data-lucide="moon" class="w-6 h-6"></i>
+                <span>MU TODAY</span>
+            </button>
+            <button class="tab-item" id="nav-3" onclick="navigate(3)">
+                <i data-lucide="layers" class="w-6 h-6"></i>
+                <span>OTHERS</span>
+            </button>
+        </nav>
     </div>
 
     <script>
         dayjs.extend(window.dayjs_plugin_customParseFormat);
         dayjs.locale('th');
-
+        const isMobile = window.innerWidth <= 1024;
         const TODAY = dayjs('2026-03-20');
 
-        const projectData = [
+ const projectData = [
             // 1. LOTTERY PLUS
             { project: "LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY Online/Offline", detail: "การที่จะทำให้ COMMUNITY FIRST ทำยังไง มีกี่แบบ อะไรบ้าง และในแต่ละแบบทำยังไงแบบเป็นขั้นเป็นตอน ใครรับผิดชอบ ใครประสานงานทั้งหมด", status: "IN PROGRESS", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", owner: "CMO", receive: "2/27", due: "-" },
             { project: "LOTTERY PLUS", bu: "Brand Book", task: "รอทางทีม We Compound Brand ปรับปรุงจาก Comment", detail: "รอการแก้ไขตาม Feedback", status: "REJECTED", nextStep: "รอทางทีม We Compound", owner: "We Compound", receive: "2/6", due: "-" },
@@ -226,7 +280,7 @@
             { project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", detail: "สรุปงบประมาณและรายละเอียดกิจกรรมทั้งหมด และรอคุยกับทาง MONO", status: "IN PROGRESS", nextStep: "MONO จะปรับ Road map และ สรุป Reqirement ตามที่ทีม และ CEO Prove", owner: "MONO", receive: "3/5", due: "3/23" },
             { project: "LOTTERY PLUS", bu: "Event: Racing Project", task: "Agenda วันซ้อม / วันแข่ง", detail: "จัดการวันซ้อมและลำดับงานวันแข่ง", status: "IN PROGRESS", nextStep: "รอสรุป และ ซ้อมครั้งถัดไป simulator ดูการเข้าเกียร์", owner: "Team Racing", receive: "3/6", due: "4/15" },
             { project: "LOTTERY PLUS", bu: "Camp", task: "Camp อบรมพนักงาน", detail: "ประชุมสรุปแผนงานเสร็จแล้ว และ อนุมัติงบประมาณทำ BrandBook แล้ว", status: "IN PROGRESS", nextStep: "และรอ ประชุมBrand bookกับคุณซอฟ วันที่ 25 เดือน มีนาคม", owner: "คุณ SOFT", receive: "3/5", due: "3/25" },
-            { project: "LOTTERY PLUS", bu: "HR team", task: "สรุป แผนโครงสร้าง TEAM", detail: "อยากได้การ Training พนักงานควรรู้อะไรบ้าง ทำให้พนักงานที่เข้าใหม่และรวมถึงพนักงานเก่าควรรู้อะไรบ้าง มองเป้าหมายทางเดียวกันไหม แล้วจะเสร็จเมื่อไหร่ ขอ Timeline และ Plan และ เงินเดือนเท่าไหร่ถึงได้เป็น Leader และนำมาอบรบเป็นพิเศษ และเราควรทำอะไรและ พัฒนาอย่างไร ฝากพี่รถตู้", status: "IN PROGRESS", nextStep: "รอคุณ รถตู้ นัด MEETING", owner: "คุณ รถตู้", receive: "3/9", due: "-" },
+            { project: "LOTTERY PLUS", bu: "HR team", task: "สรุป แผนโครงสร้าง TEAM", detail: "อยากได้การ Training พนักงานควรรู้อะไรบ้าง ทำให้พนักงานที่เข้าใหม่และรวมถึงพนักงานเก่าควรรู้อะไรบ้าง มองเป้าหมายทางเดียวกันไหม แล้วจะเสร็จเมื่อไหร่ ขอ Timeline และ Plan และ เงินเดือนเท่าไหร่ถึงได้เป็น Leader และนำมาอบรบเป็นพิเศษ และเราควรทำอะไรและ พัฒนาอย่างไร ฝากพี่รถตู้", status: "IN PROGRESS", nextStep: "อยากได้การ Training พนักงานควรรู้อะไรบ้างรอคุณ รถตู้ นัด MEETING", owner: "คุณ รถตู้", receive: "3/9", due: "-" },
             { project: "LOTTERY PLUS", bu: "Performance and Data Team", task: "พี่หนุ่ยการตลาดวันละตอนConsult", detail: "ปรึกษาพี่หนุ่ยมาช่วย Support Team Data and Performance", status: "IN PROGRESS", nextStep: "รอ CMO สรุปข้อมูลรายบละเอียด และราคา เสนอ CEO ภายหลัง เผื่อหาแผนการให้คำปรึกษา ต่อไป", owner: "CMO", receive: "3/16", due: "-" },
             { project: "LOTTERY PLUS", bu: "Performance Team", task: "Update Performance Content", detail: "Recap และ หาSolution พัฒนา Content", status: "IN PROGRESS", nextStep: "นำ Report รายการควรจะปรับปรุงยังไงรูปแบบไหน ให้ Marcom และ Production ทำให้ดีขึ้น", owner: "คุณ เนส", receive: "3/20", due: "-" },
             { project: "LOTTERY PLUS", bu: "NOKPLUSCLUB", task: "Update and Timeline", detail: "Update Consept Design , Timeline ", status: "IN PROGRESS", nextStep: "นTeam วางแผน ถ้านำ MVP 1 & 2 มารวมกัน แล้วเสร็จภายในเดือน ตุลาคมได้ไหม หรือจะตัด Feature ไหนออก และ จาก Feature ทั้งหมด ชื่อ NOKPLUS CLUB ยัง เหมาะสมอยู่ไหม แล้วจะใช้ชื่ออะไรของ PROJECT นี้", owner: "คุณ ต้น DEV", receive: "3/6", due: "-" },
@@ -243,12 +297,25 @@
             { project: "CASHFLOW GAME", bu: "CASHFLOW GAME", task: "Multi-player System", detail: "พัฒนาระบบการเล่นหลายคนแบบออนไลน์", status: "IN PROGRESS", nextStep: "MARK DEV จะทำ PitchDeckมาเสนออีกที แนวทางจดบริษัท", owner: "คุณ มาร์ค ManaDev", receive: "3/5", due: "-" }
         ];
 
+        function navigate(id) {
+            if (!isMobile) return;
+            document.querySelectorAll('.tab-item').forEach((btn, idx) => {
+                const isActive = (idx + 1) === id;
+                btn.classList.toggle('active', isActive);
+                if(isActive) {
+                    btn.classList.add(id === 1 ? 'red' : (id === 2 ? 'purple' : 'slate'));
+                } else {
+                    btn.classList.remove('red', 'purple', 'slate');
+                }
+            });
+            document.querySelectorAll('.project-column').forEach(p => p.classList.remove('active'));
+            document.getElementById(`path-${id}`).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
         }
 
         function getProgress(receiveStr, dueStr) {
@@ -257,52 +324,43 @@
             const end = dayjs(`2026/${dueStr}`, 'YYYY/M/D');
             const total = end.diff(start, 'day');
             const elapsed = TODAY.diff(start, 'day');
-            let percent = Math.round((elapsed / total) * 100);
-            percent = Math.min(Math.max(percent, 10), 98); 
+            let percent = Math.min(Math.max(Math.round((elapsed / total) * 100), 10), 98);
             return { percent, text: `${percent}%` };
         }
 
         function getThemeClass(projectName) {
-            const name = projectName.toUpperCase();
-            if (name.includes("LOTTERY")) return "theme-red";
-            if (name.includes("MU")) return "theme-purple";
-            if (name.includes("CHECKIN")) return "theme-yellow";
-            if (name.includes("THAIMART")) return "theme-blue";
-            if (name.includes("RIZZ")) return "theme-pink";
-            if (name.includes("CASHFLOW")) return "theme-green";
+            const n = projectName.toUpperCase();
+            if (n.includes("LOTTERY")) return "theme-red";
+            if (n.includes("MU")) return "theme-purple";
+            if (n.includes("CHECKIN")) return "theme-yellow";
+            if (n.includes("THAIMART")) return "theme-blue";
+            if (n.includes("RIZZ")) return "theme-pink";
+            if (n.includes("CASHFLOW")) return "theme-green";
             return "theme-slate";
-        }
-
-        function getStatusClass(status) {
-            const s = status.toUpperCase();
-            if (s.includes("IN PROGRESS")) return "status-inprogress";
-            if (s.includes("REJECTED") || s.includes("❌")) return "status-rejected";
-            return "status-inprogress";
         }
 
         function createCard(item) {
             const prog = getProgress(item.receive, item.due);
             const theme = getThemeClass(item.project);
-            const statusClass = getStatusClass(item.status);
+            const statusClass = item.status === "REJECTED" ? "status-rejected" : "status-inprogress";
             
             return `
-                <div class="project-card p-6 shadow-2xl ${theme}">
+                <div class="project-card p-5 shadow-2xl ${theme} mb-2">
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex-1">
-                            <h2 class="text-[16px] font-black text-theme uppercase tracking-widest mb-1">${item.project}</h2>
-                            <p class="text-[10px] font-bold text-accent uppercase opacity-80 mb-2">${item.bu}</p>
-                            <h3 class="text-xl font-bold text-white leading-tight">${item.task}</h3>
-                            <p class="text-[11px] text-slate-400 mt-2 italic font-light">${item.detail || ''}</p>
+                            <h2 class="text-[12px] font-black text-theme uppercase tracking-widest mb-1">${item.project}</h2>
+                            <p class="text-[9px] font-bold text-slate-500 uppercase mb-2">${item.bu}</p>
+                            <h3 class="text-base font-bold text-white leading-tight">${item.task}</h3>
                         </div>
-                        <span class="text-[9px] font-black px-3 py-1 rounded-full border border-white/10 ${statusClass} tracking-widest">
+                        <span class="text-[8px] font-black px-2 py-1 rounded-full ${statusClass} tracking-widest uppercase">
                             ${item.status}
                         </span>
                     </div>
 
-                    <div class="mb-5">
-                        <div class="flex justify-between items-end mb-2">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progress</span>
-                            <span class="text-sm font-black text-accent">${prog.text}</span>
+                    <div class="mb-4">
+                        <div class="flex justify-between items-end mb-1.5">
+                            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
+                            <span class="text-[11px] font-black text-accent">${prog.text}</span>
                         </div>
                         <div class="progress-track">
                             <div class="progress-fill bar" style="width: ${prog.percent}%">
@@ -311,32 +369,29 @@
                         </div>
                     </div>
 
-                    <div class="next-step-highlight bg-accent">
-                        <div class="flex items-center gap-2 mb-1.5">
-                            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-accent"></i>
-                            <span class="text-[10px] font-black uppercase text-white">Next Step</span>
+                    <div class="bg-accent rounded-2xl p-3 border border-white/5 mb-4">
+                        <div class="flex items-center gap-2 mb-1">
+                            <i data-lucide="chevron-right" class="w-3 h-3 text-accent"></i>
+                            <span class="text-[9px] font-black uppercase text-white">Next Step</span>
                         </div>
-                        <p class="text-[12px] font-semibold text-slate-200 leading-snug">${item.nextStep}</p>
+                        <p class="text-[11px] font-semibold text-slate-200 leading-snug">${item.nextStep}</p>
                     </div>
 
-                    <div class="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-white/10">
-                                <i data-lucide="user" class="w-4 h-4 text-theme"></i>
+                    <div class="flex justify-between items-center pt-3 border-t border-white/5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center border border-white/10">
+                                <i data-lucide="user" class="w-3.5 h-3.5 text-theme"></i>
                             </div>
-                            <div>
-                                <p class="text-[8px] font-bold text-slate-500 uppercase">Owner</p>
-                                <p class="text-[10px] font-black text-slate-300">${item.owner}</p>
-                            </div>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase">${item.owner}</span>
                         </div>
-                        <div class="flex gap-4">
+                        <div class="flex gap-3">
                             <div class="text-right">
-                                <p class="text-[8px] font-bold text-slate-500 uppercase">วันสั่งงาน</p>
-                                <p class="text-[10px] font-black text-theme">${item.receive}</p>
+                                <p class="text-[7px] font-bold text-slate-600 uppercase">วันสั่งงาน</p>
+                                <p class="text-[9px] font-black text-theme">${item.receive}</p>
                             </div>
                             <div class="text-right">
-                                <p class="text-[8px] font-bold text-slate-500 uppercase">DEADLINE</p>
-                                <p class="text-[10px] font-black text-theme">${item.due}</p>
+                                <p class="text-[7px] font-bold text-slate-600 uppercase">DEADLINE</p>
+                                <p class="text-[9px] font-black text-theme">${item.due}</p>
                             </div>
                         </div>
                     </div>
@@ -348,26 +403,33 @@
             const grid = document.getElementById(`grid-${id}`);
             const count = document.getElementById(`count-${id}`);
             count.innerText = items.length;
-            
-            const content = items.map(createCard).join('');
-            grid.innerHTML = content + content;
-            
-            const duration = Math.max(items.length * 9, 20); 
-            grid.style.animationDuration = `${duration}s`;
+            const html = items.map(createCard).join('');
+            if (!isMobile) {
+                grid.innerHTML = html + html;
+                grid.style.animationDuration = `${Math.max(items.length * 10, 25)}s`;
+            } else {
+                grid.innerHTML = html;
+            }
         }
 
         window.onload = () => {
             document.getElementById('current-date-display').innerText = TODAY.format('DD MMMM YYYY');
-            
             const col1 = projectData.filter(i => i.project.includes("LOTTERY") || i.project.includes("HR"));
             const col2 = projectData.filter(i => i.project.includes("MU"));
             const col3 = projectData.filter(i => !i.project.includes("LOTTERY") && !i.project.includes("MU") && !i.project.includes("HR"));
-
             initScroll(1, col1);
             initScroll(2, col2);
             initScroll(3, col3);
-
             lucide.createIcons();
+            if(isMobile) navigate(1);
+        };
+
+        let resizeTimer;
+        window.onresize = () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                location.reload();
+            }, 500);
         };
     </script>
 </body>
