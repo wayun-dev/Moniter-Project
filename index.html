@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Monitoring Dashboard - TV Optimized</title>
+    <title>Project Monitoring Dashboard - Final Sync</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
@@ -11,157 +11,201 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; background-color: #0f172a; overflow: hidden; height: 100vh; color: white; }
+        body { font-family: 'Kanit', sans-serif; background-color: #020617; overflow: hidden; height: 100vh; color: white; }
         
         .main-dashboard-grid { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 24px; 
-            height: calc(100vh - 160px); 
-            padding: 0 20px;
+            gap: 20px; 
+            height: calc(100vh - 140px); 
+            padding: 0 10px;
         }
 
         .project-column { 
             display: flex; 
             flex-direction: column; 
             overflow: hidden;
-            position: relative;
-            background: rgba(15, 23, 42, 0.5);
-            border-radius: 32px;
-        }
-
-        .column-header-sticky {
-            position: relative;
-            z-index: 50;
-            padding: 10px 0;
-            background: #0f172a;
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 24px;
         }
 
         .scroll-container {
             flex: 1;
             overflow: hidden;
             position: relative;
-            mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+            mask-image: linear-gradient(to bottom, transparent, black 8%, black 92%, transparent);
         }
 
         .scroll-content {
             display: flex;
             flex-direction: column;
             gap: 20px;
-            padding: 10px;
-            will-change: transform;
-            animation: verticalScroll linear infinite;
+            padding: 20px 10px;
+            animation: scroll-vertical linear infinite;
         }
 
-        /* ปรับ Animation ให้เลื่อนจาก 0 ถึง -33.33% เพราะเราคัดลอกเนื้อหาไว้ 3 ชุด */
-        @keyframes verticalScroll {
+        @keyframes scroll-vertical {
             0% { transform: translateY(0); }
-            100% { transform: translateY(-33.333%); }
+            100% { transform: translateY(-50%); }
         }
 
         .project-card { 
             border-radius: 24px; 
-            overflow: hidden;
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(30, 41, 59, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            height: auto;
-            flex-shrink: 0; /* ป้องกัน card ถูกบีบอัด */
+            transition: all 0.3s ease;
         }
 
-        .card-header-branded {
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        .progress-track {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .bg-lottery { background-color: #ef4444; }
-        .text-lottery { color: #fca5a5; }
-        .bg-mu { background-color: #a855f7; }
-        .text-mu { color: #d8b4fe; }
-        .bg-checkin { background-color: #eab308; }
-        .text-checkin { color: #fef08a; }
-        .bg-rizzup { background-color: #ec4899; }
-        .text-rizzup { color: #fbcfe8; }
-        .bg-thaimart { background-color: #3b82f6; }
-        .text-thaimart { color: #93c5fd; }
-        .bg-mixed { background-color: #64748b; }
-        .text-mixed { color: #cbd5e1; }
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            position: relative;
+            transition: width 1s ease-in-out;
+        }
 
-        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .live-pulse { animation: pulse-soft 2s infinite; }
+        .shimmer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer-effect 2s infinite linear;
+            background-size: 200% 100%;
+        }
+
+        @keyframes shimmer-effect {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Themes */
+        .theme-red { border-left: 6px solid #ef4444; }
+        .theme-red .bar { background: linear-gradient(90deg, #b91c1c, #ef4444); }
+        .theme-red .text-accent { color: #f87171; }
+        .theme-red .bg-accent { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .theme-red .text-theme { color: #ef4444; } 
+
+        .theme-purple { border-left: 6px solid #9333ea; }
+        .theme-purple .bar { background: linear-gradient(90deg, #6b21a8, #9333ea); }
+        .theme-purple .text-accent { color: #c084fc; }
+        .theme-purple .bg-accent { background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.2); }
+        .theme-purple .text-theme { color: #a855f7; }
+
+        .theme-yellow { border-left: 6px solid #eab308; }
+        .theme-yellow .bar { background: linear-gradient(90deg, #a16207, #eab308); }
+        .theme-yellow .text-accent { color: #fde047; }
+        .theme-yellow .bg-accent { background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.2); }
+        .theme-yellow .text-theme { color: #facc15; }
+
+        .theme-blue { border-left: 6px solid #3b82f6; }
+        .theme-blue .bar { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
+        .theme-blue .text-accent { color: #60a5fa; }
+        .theme-blue .bg-accent { background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); }
+        .theme-blue .text-theme { color: #60a5fa; }
+
+        .theme-pink { border-left: 6px solid #ec4899; }
+        .theme-pink .bar { background: linear-gradient(90deg, #be185d, #ec4899); }
+        .theme-pink .text-accent { color: #f472b6; }
+        .theme-pink .bg-accent { background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.2); }
+        .theme-pink .text-theme { color: #f472b6; }
+
+        .theme-green { border-left: 6px solid #22c55e; }
+        .theme-green .bar { background: linear-gradient(90deg, #15803d, #22c55e); }
+        .theme-green .text-accent { color: #4ade80; }
+        .theme-green .bg-accent { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); }
+        .theme-green .text-theme { color: #22c55e; }
+
+        .theme-slate { border-left: 6px solid #64748b; }
+        .theme-slate .bar { background: linear-gradient(90deg, #334155, #64748b); }
+        .theme-slate .text-accent { color: #94a3b8; }
+        .theme-slate .bg-accent { background: rgba(100, 116, 139, 0.1); border: 1px solid rgba(100, 116, 139, 0.2); }
+        .theme-slate .text-theme { color: #cbd5e1; }
+
+        /* Status colors */
+        .status-inprogress { background: #d97706 !important; color: white !important; }
+        .status-waiting { background: #475569 !important; color: #cbd5e1 !important; }
+        .status-live { background: #16a34a !important; color: white !important; }
+        .status-planning { background: #2563eb !important; color: white !important; }
+        .status-pending { background: #9333ea !important; color: white !important; }
+        .status-rejected { background: #dc2626 !important; color: white !important; }
+
+        .next-step-highlight { border-radius: 16px; padding: 12px 16px; margin-top: 12px; }
+        .btn-fullscreen { transition: all 0.2s ease; }
     </style>
 </head>
-<body class="p-6">
+<body class="p-4">
 
     <div id="app" class="h-full flex flex-col">
-        <!-- Header -->
-        <header class="flex items-center justify-between mb-8 bg-slate-800/50 p-6 rounded-3xl border border-white/5 shadow-2xl">
-            <div class="flex items-center gap-5">
-                <div class="bg-indigo-600 p-4 rounded-2xl shadow-lg shadow-indigo-500/20">
-                    <i data-lucide="monitor" class="w-8 h-8 text-white"></i>
+        <header class="flex items-center justify-between mb-6 px-4 py-3 bg-slate-900/50 rounded-3xl border border-white/5">
+            <div class="flex items-center gap-4">
+                <div class="bg-indigo-600 p-3 rounded-2xl shadow-lg">
+                    <i data-lucide="layout-grid" class="w-6 h-6 text-white"></i>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black uppercase tracking-tight text-white">Project Monitoring Dashboard</h1>
-                    <div class="flex items-center gap-3 mt-1">
-                        <span id="current-date-display" class="text-sm font-bold text-slate-400"></span>
-                        <div class="flex items-center gap-2 px-3 py-0.5 bg-emerald-500/20 rounded-full border border-emerald-500/30">
-                            <span class="w-2 h-2 bg-emerald-500 rounded-full live-pulse"></span>
-                            <span class="text-[12px] font-black text-emerald-400 uppercase tracking-widest">System Live</span>
-                        </div>
-                    </div>
+                    <h1 class="text-2xl font-black italic tracking-tighter uppercase text-white">Project Monitoring</h1>
+                    <p id="current-date-display" class="text-xs font-bold text-slate-500 uppercase"></p>
                 </div>
             </div>
-
-            <div class="flex items-center gap-10">
+            <div class="flex gap-6 items-center">
                 <div class="text-right">
-                    <p class="text-[12px] font-bold text-slate-500 uppercase tracking-widest mb-1">Active Tasks</p>
-                    <p id="totalTasks" class="text-4xl font-black leading-none text-white">0</p>
+                    <span class="text-[10px] font-bold text-slate-500 block">SYSTEM STATUS</span>
+                    <span class="text-sm font-black text-emerald-400 uppercase">CSV Sync Completed (V.5)</span>
                 </div>
-                <div class="h-12 w-[1px] bg-white/10"></div>
-                <button onclick="toggleFullScreen()" class="p-4 bg-white/5 rounded-2xl hover:bg-white/10 border border-white/10 transition-all active:scale-95">
-                    <i data-lucide="maximize" class="w-6 h-6 text-slate-400"></i>
+                <div class="h-10 w-[1px] bg-white/10"></div>
+                <button onclick="toggleFullScreen()" class="btn-fullscreen flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 text-slate-300">
+                    <i data-lucide="maximize" class="w-4 h-4"></i>
+                    <span class="text-[10px] font-black tracking-widest uppercase">Fullscreen</span>
                 </button>
             </div>
         </header>
 
-        <!-- Columns -->
         <div class="main-dashboard-grid">
+            <!-- 1. Lottery Plus -->
             <div class="project-column">
-                <div class="column-header-sticky">
-                    <div class="flex items-center gap-3 bg-red-600 px-6 py-4 rounded-2xl shadow-lg shadow-red-900/20 mx-2">
-                        <i data-lucide="ticket" class="w-6 h-6 text-white"></i>
-                        <span class="text-lg font-black uppercase tracking-widest text-white">1. Lottery Plus</span>
+                <div class="px-6 py-4 bg-red-600/90 rounded-t-2xl flex justify-between items-center shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="ticket" class="w-5 h-5 text-white"></i>
+                        <span class="font-black text-white tracking-widest uppercase text-lg">Lottery Plus & HR</span>
                     </div>
+                    <span id="count-1" class="text-xs bg-black/30 px-2 py-0.5 rounded-full font-bold">0</span>
                 </div>
-                <div class="scroll-container" id="container-lottery">
-                    <div id="lotteryGrid" class="scroll-content"></div>
+                <div class="scroll-container" id="container-1">
+                    <div id="grid-1" class="scroll-content"></div>
                 </div>
             </div>
 
+            <!-- 2. Mu Today -->
             <div class="project-column">
-                <div class="column-header-sticky">
-                    <div class="flex items-center gap-3 bg-purple-600 px-6 py-4 rounded-2xl shadow-lg shadow-purple-900/20 mx-2">
-                        <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
-                        <span class="text-lg font-black uppercase tracking-widest text-white">2. Mu Today</span>
+                <div class="px-6 py-4 bg-purple-600/90 rounded-t-2xl flex justify-between items-center shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="moon" class="w-5 h-5 text-white"></i>
+                        <span class="font-black text-white tracking-widest uppercase text-lg">Mu Today</span>
                     </div>
+                    <span id="count-2" class="text-xs bg-black/30 px-2 py-0.5 rounded-full font-bold">0</span>
                 </div>
-                <div class="scroll-container" id="container-mu">
-                    <div id="muGrid" class="scroll-content"></div>
+                <div class="scroll-container" id="container-2">
+                    <div id="grid-2" class="scroll-content"></div>
                 </div>
             </div>
 
+            <!-- 3. Others -->
             <div class="project-column">
-                <div class="column-header-sticky">
-                    <div class="flex items-center gap-3 bg-slate-700 px-6 py-4 rounded-2xl shadow-lg shadow-slate-900/20 mx-2">
-                        <i data-lucide="layers" class="w-6 h-6 text-white"></i>
-                        <span class="text-lg font-black uppercase tracking-widest text-white">3. Others / RizzUp</span>
+                <div class="px-6 py-4 bg-slate-700/90 rounded-t-2xl flex justify-between items-center shadow-lg">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="layers" class="w-5 h-5 text-white"></i>
+                        <span class="font-black text-white tracking-widest uppercase text-lg">Others</span>
                     </div>
+                    <span id="count-3" class="text-xs bg-black/30 px-2 py-0.5 rounded-full font-bold">0</span>
                 </div>
-                <div class="scroll-container" id="container-mixed">
-                    <div id="mixedGrid" class="scroll-content"></div>
+                <div class="scroll-container" id="container-3">
+                    <div id="grid-3" class="scroll-content"></div>
                 </div>
             </div>
         </div>
@@ -171,76 +215,124 @@
         dayjs.extend(window.dayjs_plugin_customParseFormat);
         dayjs.locale('th');
 
-        const rawData = [
-            { project: "LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY Online/Offline", detail: "การที่จะทำให้ COMMUNITY FIRST ทำยังไง มีกี่แบบ อะไรบ้าง และในแต่ละแบบทำยังไงแบบเป็นขั้นเป็นตอน ใครรับผิดชอบ ใครประสานงานทั้งหมด", status: "🟡", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", owner: "CMO", receive: "2/27", due: "-" },
-            { project: "LOTTERY PLUS", bu: "Brand Book", task: "จัดทำ Brand Book", detail: "รอทางทีม We Compound Brand ปรับปรุงจาก Comment", status: "❌", nextStep: "รอทางทีม We Compound", owner: "We Compound", receive: "2/6", due: "-" },
-            { project: "LOTTERY PLUS", bu: "MKT Structure", task: "CEO อนุมัติแผนโครงสร้างทีมใหม่แล้ว", detail: "ประสาน HR ทำ JD และสรรหาคนเพิ่ม", status: "🟡", nextStep: "Creator in resident CMO(พี่อิท) จะไปจัดการเงื่อนไข กรอบเวลา และแนวทางมาเสนอภายหลัง", owner: "CMO", receive: "3/5", due: "-" },
-            { project: "LOTTERY PLUS", bu: "Event: Happy bus", task: "กิจกรรมรถบัสความสุข (Happy Bus)", detail: "สื่อสารถึงลูกค้าและ รอรวมรวบยอดทั้งหมด", status: "🟡", nextStep: "กำลังดำเนินการ ตอนนี้ได้ 400/500 และมีการขยายเวลาลงทะเบียนแล้ว", owner: "Event", receive: "2/20", due: "4/10" },
-            { project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", detail: "สรุปงบประมาณและรายละเอียดกิจกรรมทั้งหมด และรอคุยกับทาง MONO", status: "🟡", nextStep: "MONO จะปรับ Road map และ สรุป Reqirement ตามที่ทีม และ CEO Prove", owner: "MONO", receive: "3/5", due: "3/23" },
-            { project: "LOTTERY PLUS", bu: "Event: Racing Project", task: "Agenda วันซ้อม/วันแข่ง", detail: "อยู่ในกระบวนการ ซ้อมตาม Calendar", status: "🟡", nextStep: "Post ลง Social Media ของ Lottery plus แล้ว", owner: "Marketing Team", receive: "2/1", due: "-" },
-            { project: "LOTTERY PLUS", bu: "The Next Gen (คุณ SOFT)", task: "โปรแกรมพัฒนาบุคลากร", detail: "Camp: อบรมเสร็จแล้ว และ อนุมัติงบประมาณทำ BrandBook แล้ว", status: "🟡", nextStep: "และรอ ประชุมBrand bookกับคุณซอฟ", owner: "คุณSOFT", receive: "3/5", due: "3/25" },
-            { project: "LOTTERY PLUS", bu: "HR team", task: "สรุป แผนโครงสร้าง TEAM", detail: "รอนัดครั้งถัดไป", status: "🟡", nextStep: "รอคุณ รถตู้ นัด MEETING", owner: "คุณ รถตู้", receive: "3/9", due: "-" },
-            { project: "MU TODAY", bu: "MU TODAY Community", task: "Partnership Focus", detail: "หยุดโฟกัส COMMUNITY และเน้นไปที่ PARTNER FIRST ก่อน แล้ว COMMUNITY จะมาเอง", status: "🟡", nextStep: "Focus Parthnership! Support Partnership (Production + Content)", owner: "Team Mutoday", receive: "3/6", due: "-" },
-            { project: "MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูลและการทำนาย", detail: "พัฒนา AI ต่อและ ทำ Content on Social", status: "🟡", nextStep: "หา Creative และ TIktok", owner: "Team Mutoday", receive: "2/11", due: "-" },
-            { project: "CHECKIN PLUS", bu: "CHECKIN PLUS", task: "Sale Support & Payment", detail: "อนุมัติ Sale Support 4 ตำแหน่ง (เด็กจบใหม่) และทำเรื่องการชำระเงินผ่านบัตรเครดิต", status: "🟡", nextStep: "Checkin Book (BETA) ขึ้น Beta Web ปลาย มี.ค.", owner: "คุณอิง และ คุณเกน", receive: "2/6", due: "-" },
-            { project: "THAIMART", bu: "THAIMART", task: "Business Model & TRUST", detail: "สรุป Business Model คอนเซปต์ THAIMART = TRUST", status: "🟡", nextStep: "พี่นัทลองวางโครงสร้าง Branding และ Structure ของ THAIMART แล้วนำมาเสนอภายหลัง", owner: "คุณ นัท MU", receive: "3/1", due: "-" },
-            { project: "RIZZ UP", bu: "RIZZ UP", task: "Content & Community Planning", detail: "เตรียมแผนการทำ Content และการสร้าง Community บนแพลตฟอร์มใหม่", status: "🟡", nextStep: "สรุปทิศทาง Branding และเตรียมงาน Production", owner: "RIZZUPTEAM", receive: "3/10", due: "-" }
+        const TODAY = dayjs('2026-03-20');
+
+        const projectData = [
+            // 1. LOTTERY PLUS
+            { project: "LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY Online/Offline", detail: "การที่จะทำให้ COMMUNITY FIRST ทำยังไง มีกี่แบบ อะไรบ้าง และในแต่ละแบบทำยังไงแบบเป็นขั้นเป็นตอน ใครรับผิดชอบ ใครประสานงานทั้งหมด", status: "IN PROGRESS", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", owner: "CMO", receive: "2/27", due: "-" },
+            { project: "LOTTERY PLUS", bu: "Brand Book", task: "รอทางทีม We Compound Brand ปรับปรุงจาก Comment", detail: "รอการแก้ไขตาม Feedback", status: "REJECTED", nextStep: "รอทางทีม We Compound", owner: "We Compound", receive: "2/6", due: "-" },
+            { project: "LOTTERY PLUS", bu: "MKT Structure", task: "CEO อนุมัติแผนโครงสร้างทีมใหม่แล้ว", detail: "ประสาน HR ทำ JD และสรรหาคนเพิ่ม", status: "IN PROGRESS", nextStep: "CMO(พี่อิท) จะไปจัดการเงื่อนไข กรอบเวลา และแนวทางมาเสนอภายหลัง", owner: "CMO", receive: "3/5", due: "-" },
+            { project: "LOTTERY PLUS", bu: "Event: Happy bus", task: "กิจกรรมรถบัสความสุข (Happy Bus)", detail: "สื่อสารถึงลูกค้าและ รอรวมรวบยอดทั้งหมด", status: "IN PROGRESS", nextStep: "กำลังดำเนินการ ตอนนี้ได้ 500/500 และมีการขยายเวลาลงทะเบียนแล้ว", owner: "Event", receive: "2/20", due: "4/10" },
+            { project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", detail: "สรุปงบประมาณและรายละเอียดกิจกรรมทั้งหมด และรอคุยกับทาง MONO", status: "IN PROGRESS", nextStep: "MONO จะปรับ Road map และ สรุป Reqirement ตามที่ทีม และ CEO Prove", owner: "MONO", receive: "3/5", due: "3/23" },
+            { project: "LOTTERY PLUS", bu: "Event: Racing Project", task: "Agenda วันซ้อม / วันแข่ง", detail: "จัดการวันซ้อมและลำดับงานวันแข่ง", status: "IN PROGRESS", nextStep: "รอสรุป และ ซ้อมครั้งถัดไป simulator ดูการเข้าเกียร์", owner: "Team Racing", receive: "3/6", due: "4/15" },
+            { project: "LOTTERY PLUS", bu: "Camp", task: "Camp อบรมพนักงาน", detail: "ประชุมสรุปแผนงานเสร็จแล้ว และ อนุมัติงบประมาณทำ BrandBook แล้ว", status: "IN PROGRESS", nextStep: "และรอ ประชุมBrand bookกับคุณซอฟ วันที่ 25 เดือน มีนาคม", owner: "คุณ SOFT", receive: "3/5", due: "3/25" },
+            { project: "LOTTERY PLUS", bu: "HR team", task: "สรุป แผนโครงสร้าง TEAM", detail: "รอนัดครั้งถัดไป", status: "IN PROGRESS", nextStep: "รอคุณ รถตู้ นัด MEETING", owner: "คุณ รถตู้", receive: "3/9", due: "-" },
+
+            // 2. MU TODAY
+            { project: "MU TODAY", bu: "MU TODAY Community", task: "เน้นไปที่ PARTNER FIRST ก่อน", detail: "หยุดโฟกัส COMMUNITY ชั่วคราว และเน้นไปที่ PARTNER FIRST แล้ว COMMUNITY จะมาเอง", status: "IN PROGRESS", nextStep: "Focus Partnership! Support Partnership (Production + Content)", owner: "Team Mutoday", receive: "3/6", due: "-" },
+            { project: "MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูลและการทำนาย", detail: "พัฒนา AI ต่อและ ทำ Content on Social", status: "IN PROGRESS", nextStep: "หา Creative และ TIktok", owner: "Team Mutoday", receive: "2/11", due: "-" },
+
+            // 3. OTHERS
+            { project: "CHECKIN PLUS", bu: "System", task: "Sale Support & ชำระเงินบัตรเครดิต", detail: "อนุมัติ Sale Support 4 ตำแหน่ง และทำเรื่องการชำระเงินผ่านบัตรเครดิต", status: "IN PROGRESS", nextStep: "Checkin Book (BETA) ขึ้น Beta Web ปลาย มี.ค.", owner: "คุณอิง และ คุณเกน", receive: "2/6", due: "-" },
+            { project: "THAIMART", bu: "Business Model", task: "คอนเซปต์ THAIMART = TRUST", detail: "Timeline: Web Beta (เม.ย.) / App (สิ้น พ.ย. 69)", status: "IN PROGRESS", nextStep: "พี่นัทลองวางโครงสร้าง Branding และ Structure แล้วนำมาเสนอภายหลัง", owner: "คุณ นัท MU", receive: "3/6", due: "-" },
+            { project: "RIZZ UP", bu: "RIZZ UP", task: "Campaign & Branding", detail: "จัดทำคอนเซปต์และรูปแบบการตลาดใหม่", status: "IN PROGRESS", nextStep: "จัดทำ Branding และ สรุปแผนงานภาพรวมเพื่อนำเสนอ", owner: "Team RizzUp", receive: "3/10", due: "4/5" },
+            { project: "CASHFLOW GAME", bu: "CASHFLOW GAME", task: "Multi-player System", detail: "พัฒนาระบบการเล่นหลายคนแบบออนไลน์", status: "IN PROGRESS", nextStep: "ทดสอบระบบความเสถียรของ Server และ Logic การเล่น", owner: "คุณ พอล", receive: "3/5", due: "3/28" }
         ];
 
-        function getTheme(projectName) {
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function getProgress(receiveStr, dueStr) {
+            if (!dueStr || dueStr === "-" || dueStr === "") return { percent: 15, text: "WAITING" };
+            const start = dayjs(`2026/${receiveStr}`, 'YYYY/M/D');
+            const end = dayjs(`2026/${dueStr}`, 'YYYY/M/D');
+            const total = end.diff(start, 'day');
+            const elapsed = TODAY.diff(start, 'day');
+            let percent = Math.round((elapsed / total) * 100);
+            percent = Math.min(Math.max(percent, 10), 98); 
+            return { percent, text: `${percent}%` };
+        }
+
+        function getThemeClass(projectName) {
             const name = projectName.toUpperCase();
-            if (name.includes("LOTTERY")) return { bg: "bg-lottery", text: "text-lottery" };
-            if (name.includes("MU")) return { bg: "bg-mu", text: "text-mu" };
-            if (name.includes("CHECKIN")) return { bg: "bg-checkin", text: "text-checkin" };
-            if (name.includes("RIZZ")) return { bg: "bg-rizzup", text: "text-rizzup" };
-            if (name.includes("THAI")) return { bg: "bg-thaimart", text: "text-thaimart" };
-            return { bg: "bg-mixed", text: "text-mixed" };
+            if (name.includes("LOTTERY")) return "theme-red";
+            if (name.includes("MU")) return "theme-purple";
+            if (name.includes("CHECKIN")) return "theme-yellow";
+            if (name.includes("THAIMART")) return "theme-blue";
+            if (name.includes("RIZZ")) return "theme-pink";
+            if (name.includes("CASHFLOW")) return "theme-green";
+            return "theme-slate";
+        }
+
+        function getStatusClass(status) {
+            const s = status.toUpperCase();
+            if (s.includes("IN PROGRESS")) return "status-inprogress";
+            if (s.includes("REJECTED") || s.includes("❌")) return "status-rejected";
+            return "status-inprogress";
         }
 
         function createCard(item) {
-            const theme = getTheme(item.project);
-            const statusLabel = item.status === "🟡" ? "IN PROCESS" : (item.status === "❌" ? "PENDING/ISSUE" : "COMPLETED");
-            const statusColor = item.status === "🟡" ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-red-500/20 text-red-400 border-red-500/30";
+            const prog = getProgress(item.receive, item.due);
+            const theme = getThemeClass(item.project);
+            const statusClass = getStatusClass(item.status);
             
             return `
-                <div class="project-card shadow-xl shadow-black/20">
-                    <div class="card-header-branded ${theme.bg}">
-                        <span class="text-[11px] font-black uppercase tracking-[0.2em] text-white/90">${item.project}</span>
-                        <span class="text-[10px] font-bold px-3 py-1 rounded-full bg-black/30 text-white border border-white/10">${statusLabel}</span>
+                <div class="project-card p-6 shadow-2xl ${theme}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h2 class="text-[16px] font-black text-theme uppercase tracking-widest mb-1">${item.project}</h2>
+                            <p class="text-[10px] font-bold text-accent uppercase opacity-80 mb-2">${item.bu}</p>
+                            <h3 class="text-xl font-bold text-white leading-tight">${item.task}</h3>
+                            <p class="text-[11px] text-slate-400 mt-2 italic font-light">${item.detail || ''}</p>
+                        </div>
+                        <span class="text-[9px] font-black px-3 py-1 rounded-full border border-white/10 ${statusClass} tracking-widest">
+                            ${item.status}
+                        </span>
                     </div>
-                    <div class="p-6">
-                        <div class="flex justify-between items-start mb-3">
-                            <p class="text-[12px] font-bold ${theme.text} uppercase tracking-wider">${item.bu}</p>
-                            <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg border ${statusColor}">${statusLabel}</span>
+
+                    <div class="mb-5">
+                        <div class="flex justify-between items-end mb-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progress</span>
+                            <span class="text-sm font-black text-accent">${prog.text}</span>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-3 leading-tight">${item.task}</h3>
-                        <p class="text-[12px] text-slate-400 mb-5 leading-relaxed">${item.detail || '-'}</p>
-                        <div class="bg-white/5 p-4 rounded-2xl border border-white/5 mb-5 shadow-inner flex flex-col gap-2">
-                            <span class="text-[11px] font-black ${theme.text} uppercase tracking-widest flex items-center gap-2">
-                                <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i>
-                                Next Step
-                            </span>
-                            <p class="text-[14px] font-medium text-slate-100 leading-relaxed">${item.nextStep || '-'}</p>
-                        </div>
-                        <div class="flex flex-col gap-4 pt-5 border-t border-white/5">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-slate-700/50 flex items-center justify-center border border-white/10">
-                                    <i data-lucide="user-2" class="w-6 h-6 text-white/80"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-500 uppercase leading-none mb-1.5 tracking-tighter text-slate-400">Person in charge</p>
-                                    <p class="text-[15px] font-black text-slate-100">${item.owner || '-'}</p>
-                                </div>
+                        <div class="progress-track">
+                            <div class="progress-fill bar" style="width: ${prog.percent}%">
+                                <div class="shimmer"></div>
                             </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-black/20 p-3 rounded-2xl border border-white/5">
-                                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Received</p>
-                                    <p class="text-[14px] font-black ${theme.text}">${item.receive || '-'}</p>
-                                </div>
-                                <div class="bg-black/20 p-3 rounded-2xl border border-white/5 text-right">
-                                    <p class="text-[9px] font-bold text-slate-500 uppercase mb-1">Deadline</p>
-                                    <p class="text-[14px] font-black ${theme.text}">${item.due || '-'}</p>
-                                </div>
+                        </div>
+                    </div>
+
+                    <div class="next-step-highlight bg-accent">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-accent"></i>
+                            <span class="text-[10px] font-black uppercase text-white">Next Step</span>
+                        </div>
+                        <p class="text-[12px] font-semibold text-slate-200 leading-snug">${item.nextStep}</p>
+                    </div>
+
+                    <div class="flex justify-between items-center mt-6 pt-4 border-t border-white/5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-white/10">
+                                <i data-lucide="user" class="w-4 h-4 text-theme"></i>
+                            </div>
+                            <div>
+                                <p class="text-[8px] font-bold text-slate-500 uppercase">Owner</p>
+                                <p class="text-[10px] font-black text-slate-300">${item.owner}</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="text-right">
+                                <p class="text-[8px] font-bold text-slate-500 uppercase">วันสั่งงาน</p>
+                                <p class="text-[10px] font-black text-theme">${item.receive}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[8px] font-bold text-slate-500 uppercase">DEADLINE</p>
+                                <p class="text-[10px] font-black text-theme">${item.due}</p>
                             </div>
                         </div>
                     </div>
@@ -248,59 +340,31 @@
             `;
         }
 
-        /**
-         * แก้ไขปัญหา Card แหว่งด้วย Triple Buffering
-         */
-        function setupAutoScroll(gridId, containerId) {
-            const grid = document.getElementById(gridId);
-            const container = document.getElementById(containerId);
+        function initScroll(id, items) {
+            const grid = document.getElementById(`grid-${id}`);
+            const count = document.getElementById(`count-${id}`);
+            count.innerText = items.length;
             
-            // รอให้ Layout วาดเสร็จจริงเพื่อให้ scrollHeight ถูกต้อง
-            const realHeight = grid.getBoundingClientRect().height;
-            if (realHeight <= container.clientHeight) {
-                grid.style.animation = 'none';
-                return;
-            }
-
-            // คัดลอกเนื้อหา 3 ชุดเพื่อให้แน่ใจว่าไม่มีช่องว่างตอนลูป
-            const originalContent = grid.innerHTML;
-            grid.innerHTML = originalContent + originalContent + originalContent;
-
-            // คำนวณความเร็ว
-            const duration = realHeight / 30; // ความเร็ว 30px ต่อวินาที
+            const content = items.map(createCard).join('');
+            grid.innerHTML = content + content;
+            
+            const duration = Math.max(items.length * 9, 20); 
             grid.style.animationDuration = `${duration}s`;
         }
 
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-            else document.exitFullscreen();
-        }
+        window.onload = () => {
+            document.getElementById('current-date-display').innerText = TODAY.format('DD MMMM YYYY');
+            
+            const col1 = projectData.filter(i => i.project.includes("LOTTERY") || i.project.includes("HR"));
+            const col2 = projectData.filter(i => i.project.includes("MU"));
+            const col3 = projectData.filter(i => !i.project.includes("LOTTERY") && !i.project.includes("MU") && !i.project.includes("HR"));
 
-        function render() {
-            document.getElementById('current-date-display').innerText = dayjs().format('DD MMMM YYYY');
-            document.getElementById('totalTasks').innerText = rawData.length;
-
-            const lottery = rawData.filter(i => i.project.toUpperCase().includes("LOTTERY"));
-            const mu = rawData.filter(i => i.project.toUpperCase().includes("MU"));
-            const mixed = rawData.filter(i => !i.project.toUpperCase().includes("LOTTERY") && !i.project.toUpperCase().includes("MU"));
-
-            document.getElementById('lotteryGrid').innerHTML = lottery.map(createCard).join('');
-            document.getElementById('muGrid').innerHTML = mu.map(createCard).join('');
-            document.getElementById('mixedGrid').innerHTML = mixed.map(createCard).join('');
+            initScroll(1, col1);
+            initScroll(2, col2);
+            initScroll(3, col3);
 
             lucide.createIcons();
-
-            // ใช้ requestAnimationFrame หรือ setTimeout เพื่อรอให้ DOM พร้อมคำนวณขนาด
-            window.requestAnimationFrame(() => {
-                setTimeout(() => {
-                    setupAutoScroll('lotteryGrid', 'container-lottery');
-                    setupAutoScroll('muGrid', 'container-mu');
-                    setupAutoScroll('mixedGrid', 'container-mixed');
-                }, 500);
-            });
-        }
-
-        window.onload = render;
+        };
     </script>
 </body>
 </html>
