@@ -214,7 +214,7 @@
             <div class="flex gap-4 items-center">
                 <div class="hidden md:block text-right">
                     <span class="text-[10px] font-bold text-slate-500 block uppercase">System Status</span>
-                    <span id="last-update-text" class="text-[11px] font-black text-emerald-400 uppercase tracking-tight">กำลังโหลดข้อมูลจาก Google Sheets... <span class="text-[11px] font-black text-red-500 uppercase tracking-tight"> >> หากต้องการหยุดอ่าน Card กรุณานำ Cursor Remote ชี้ที่ Card ครับ</span></span>
+                    <span id="last-update-text" class="text-sm font-black text-emerald-400 uppercase tracking-tight">กำลังโหลดข้อมูลจาก Google Sheets... <span class="text-sm font-black text-red-500 uppercase tracking-tight"> >> หากต้องการหยุดอ่าน Card กรุณานำ Cursor Remote ชี้ที่ Card ครับ</span></span>
                 </div>
                 <button onclick="toggleFullScreen()" class="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 text-slate-300 hover:bg-white/10 transition-all">
                     <i data-lucide="maximize" class="w-4 h-4"></i>
@@ -364,7 +364,7 @@
                 // ขั้น 3: อัพเดท status bar แยกต่างหาก ไม่ block UI
                 const now = dayjs();
                 document.getElementById('last-update-text').innerHTML =
-                    `Live จาก Google Sheets · อัพเดทล่าสุด ${now.format('DD/MM/YY HH:mm')} น. <span class="text-red-500"> >> หากต้องการหยุดอ่าน Card กรุณานำ Cursor Remote ชี้ที่ Card ครับ</span>`;
+                    `Live จาก Google Sheets · อัพเดทล่าสุด ${now.format('DD/MM/YY HH:mm')} น. <span class="text-red-500"> >> หากต้องการหยุดอ่าน Card กรุณานำ Cursor Remote ชี้ที่ Card ครับ</span> <span class="text-slate-400">·</span> <span class="text-yellow-400">หากจะเพิ่มข้อมูลหรือ Update Card โปรดติดต่อ WAYU</span>`;
 
             } catch(e) {
                 console.error("Fetch sheet error:", e);
