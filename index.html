@@ -11,13 +11,16 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/customParseFormat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Kanit', sans-serif; 
-            background-color: #020617; 
-            color: white; 
-            margin: 0; 
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #020617;
+            color: white;
+            margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
+            /* ป้องกัน text-select ระหว่าง scroll บน iOS */
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         /* Desktop specific */
@@ -44,13 +47,31 @@
 
         /* Mobile specific */
         @media (max-width: 1024px) {
-            body { overflow-y: auto; padding-bottom: 100px; }
+            /* ใช้ dvh แทน vh เพื่อให้ address bar ของ iOS ไม่ trigger resize */
+            body {
+                overflow-y: auto;
+                padding-bottom: 100px;
+                /* ป้องกัน bounce scroll ที่ทำให้ layout สะดุด */
+                overscroll-behavior-y: contain;
+            }
             .main-dashboard-grid { display: block; padding: 12px; }
             .project-column { display: none; width: 100%; border-radius: 24px; overflow: hidden; margin-bottom: 20px; }
             .project-column.active { display: flex; flex-direction: column; }
-            .scroll-content { animation: none !important; padding: 16px 0; }
-            .scroll-container { overflow: visible !important; mask-image: none !important; }
+            .scroll-content {
+                animation: none !important;
+                padding: 16px 0;
+                /* GPU acceleration สำหรับ scroll ที่ลื่นขึ้น */
+                transform: translateZ(0);
+                will-change: transform;
+            }
+            .scroll-container {
+                overflow: visible !important;
+                mask-image: none !important;
+                -webkit-overflow-scrolling: touch; /* iOS momentum scroll */
+            }
             .tab-bar { display: flex !important; }
+            /* ป้องกัน tap delay บน iOS */
+            .tab-item, .project-card { touch-action: manipulation; }
         }
 
         .scroll-container {
@@ -266,7 +287,9 @@
     <script>
         dayjs.extend(window.dayjs_plugin_customParseFormat);
         dayjs.locale('th');
-        const isMobile = window.innerWidth <= 1024;
+        // ใช้ฟังก์ชัน แทน const เพื่อให้ตรวจสอบขนาดหน้าจอจริงๆ เมื่อเรียกใช้
+        const getIsMobile = () => window.innerWidth <= 1024;
+        let isMobile = getIsMobile();
         const NOW = dayjs();
 
         // ─── Google Sheets Config ───────────────────────────────────────────────
@@ -316,20 +339,33 @@
             });
         }
 
+        // ─── แยก 2 ขั้น: โหลดข้อมูลก่อน → render UI → ไม่หน่วง ────────────────
         async function loadAndRender() {
             try {
+                // ขั้น 1: fetch ข้อมูลจาก Sheet
                 const data = await fetchSheetData();
+
+                // ขั้น 2: render card ทันที (ไม่รอ AI)
                 const p = (name) => name.toUpperCase();
                 const col1 = data.filter(i => p(i.project).includes("LOTTERY") || p(i.project).includes("HR"));
                 const col2 = data.filter(i => p(i.project).includes("MU"));
-                const col3 = data.filter(i => !p(i.project).includes("LOTTERY") && !p(i.project).includes("MU") && !p(i.project).includes("HR"));
+                const col3 = data.filter(i =>
+                    !p(i.project).includes("LOTTERY") &&
+                    !p(i.project).includes("MU") &&
+                    !p(i.project).includes("HR")
+                );
+
+                // render พร้อมกันทั้ง 3 column
                 initScroll(1, col1);
                 initScroll(2, col2);
                 initScroll(3, col3);
                 lucide.createIcons();
+
+                // ขั้น 3: อัพเดท status bar แยกต่างหาก ไม่ block UI
                 const now = dayjs();
                 document.getElementById('last-update-text').innerHTML =
                     `Live จาก Google Sheets · อัพเดทล่าสุด ${now.format('DD/MM/YY HH:mm')} น. <span class="text-red-500"> >> หากต้องการหยุดอ่าน Card กรุณานำ Cursor Remote ชี้ที่ Card ครับ</span>`;
+
             } catch(e) {
                 console.error("Fetch sheet error:", e);
                 document.getElementById('last-update-text').innerHTML =
@@ -474,13 +510,24 @@
             setInterval(loadAndRender, 30 * 60 * 1000);
         };
 
-        let resizeTimer;
-        window.onresize = () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                location.reload();
-            }, 500);
-        };
+        // ─── Resize Handler (ไม่ reload แล้ว — ปรับ Layout แทน) ─────────────────
+        // บน iOS address bar ขึ้น/ลงทำให้ resize trigger ตลอด ถ้า reload จะกระตุก
+        let _lastWidth = window.innerWidth;
+        let _resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(_resizeTimer);
+            _resizeTimer = setTimeout(() => {
+                const newWidth = window.innerWidth;
+                // เช็คว่า width เปลี่ยนจริง (ไม่ใช่แค่ address bar ขึ้น/ลง)
+                if (Math.abs(newWidth - _lastWidth) > 100) {
+                    _lastWidth = newWidth;
+                    isMobile = getIsMobile();
+                    // ปรับ layout ใหม่โดยไม่ reload
+                    if (isMobile) navigate(1);
+                }
+                // ถ้า height เปลี่ยนอย่างเดียว (iOS address bar) → ไม่ทำอะไร
+            }, 300);
+        });
     </script>
 </body>
 </html>
