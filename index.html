@@ -193,7 +193,7 @@
             <div class="flex gap-4 items-center">
                 <div class="hidden md:block text-right">
                     <span class="text-[10px] font-bold text-slate-500 block uppercase">System Status</span>
-                    <span class="text-[11px] font-black text-emerald-400 uppercase tracking-tight">Real-time Calculation On</span>
+                    <span class="text-[11px] font-black text-emerald-400 uppercase tracking-tight">Last Update: 20/03/69 (Update เพิ่มเติม ติดต่อ WAYU) <span class="text-[11px] font-black text-red-500 uppercase tracking-tight"> >> หากต้องการหยุดอ่าน Card กรุณานำ Cursor Remote ชี้ที่ Card ครับ</span> </span>
                 </div>
                 <button onclick="toggleFullScreen()" class="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 text-slate-300 hover:bg-white/10 transition-all">
                     <i data-lucide="maximize" class="w-4 h-4"></i>
@@ -271,24 +271,30 @@
         // --- เปลี่ยนจาก Fixed Date เป็น Current Date ---
         const NOW = dayjs(); 
 
-        const projectData = [
+      const projectData = [
+            // 1. LOTTERY PLUS
             { project: "LOTTERY PLUS", bu: "Community (MKT)", task: "แนวทางการ BUILD COMMUNITY Online/Offline", detail: "การที่จะทำให้ COMMUNITY FIRST ทำยังไง มีกี่แบบ อะไรบ้าง และในแต่ละแบบทำยังไงแบบเป็นขั้นเป็นตอน ใครรับผิดชอบ ใครประสานงานทั้งหมด", status: "IN PROGRESS", nextStep: "รอ Team Event และ CMO อัพเดทแผน Builld Community", owner: "CMO", receive: "2/27", due: "-" },
             { project: "LOTTERY PLUS", bu: "Brand Book", task: "รอทางทีม We Compound Brand ปรับปรุงจาก Comment", detail: "รอการแก้ไขตาม Feedback", status: "REJECTED", nextStep: "รอทางทีม We Compound", owner: "We Compound", receive: "2/6", due: "-" },
-            { project: "LOTTERY PLUS", bu: "MKT Structure", task: "CEO อนุมัติแผนโครงสร้างทีมใหม่แล้ว", detail: "ประสาน HR ทำ JD และสรรหาคนเพิ่ม", status: "IN PROGRESS", nextStep: "CMO(พี่อิท)จะไปจัดการเงื่อนไข และแนวทาง Creator in resident มาเสนอภายหลัง", owner: "CMO", receive: "3/5", due: "-" },
+            { project: "LOTTERY PLUS", bu: "MKT Structure", task: "CEO อนุมัติแผนโครงสร้างทีมใหม่แล้ว", detail: "ประสาน HR ทำ JD และสรรหาคนเพิ่ม", status: "IN PROGRESS", nextStep: "CMO(พี่อิท)จะไปจัดการเงื่อนไข และแนวทาง  Creatorin residentมาเสนอภายหลัง ", owner: "CMO", receive: "3/5", due: "-" },
             { project: "LOTTERY PLUS", bu: "Event: Happy bus", task: "กิจกรรมรถบัสความสุข (Happy Bus)", detail: "สื่อสารถึงลูกค้าและ รอรวมรวบยอดทั้งหมด", status: "IN PROGRESS", nextStep: "กำลังดำเนินการ ตอนนี้ได้ 500/500 และมีการขยายเวลาลงทะเบียนแล้ว", owner: "Event", receive: "2/20", due: "4/10" },
             { project: "LOTTERY PLUS", bu: "Event: Songkran", task: "แผนจัดงานสงกรานต์", detail: "สรุปงบประมาณและรายละเอียดกิจกรรมทั้งหมด และรอคุยกับทาง MONO", status: "IN PROGRESS", nextStep: "MONO จะปรับ Road map และ สรุป Reqirement ตามที่ทีม และ CEO Prove", owner: "MONO", receive: "3/5", due: "3/23" },
             { project: "LOTTERY PLUS", bu: "Event: Racing Project", task: "Agenda วันซ้อม / วันแข่ง", detail: "จัดการวันซ้อมและลำดับงานวันแข่ง", status: "IN PROGRESS", nextStep: "รอสรุป และ ซ้อมครั้งถัดไป simulator ดูการเข้าเกียร์", owner: "Team Racing", receive: "3/6", due: "4/15" },
             { project: "LOTTERY PLUS", bu: "Camp", task: "Camp อบรมพนักงาน", detail: "ประชุมสรุปแผนงานเสร็จแล้ว และ อนุมัติงบประมาณทำ BrandBook แล้ว", status: "IN PROGRESS", nextStep: "และรอ ประชุมBrand bookกับคุณซอฟ วันที่ 25 เดือน มีนาคม", owner: "คุณ SOFT", receive: "3/5", due: "3/25" },
-            { project: "LOTTERY PLUS", bu: "HR team", task: "สรุป แผนโครงสร้าง TEAM", detail: "อยากได้การ Training พนักงานควรรู้อะไรบ้าง... มองเป้าหมายทางเดียวกันไหม... ขอ Timeline และ Plan และนำมาอบรบเป็นพิเศษ ฝากพี่รถตู้", status: "IN PROGRESS", nextStep: "รอคุณ รถตู้ นัด MEETING", owner: "คุณ รถตู้", receive: "3/9", due: "-" },
-            { project: "LOTTERY PLUS", bu: "Performance and Data Team", task: "พี่หนุ่ยการตลาดวันละตอน Consult", detail: "ปรึกษาพี่หนุ่ยมาช่วย Support Team Data and Performance", status: "IN PROGRESS", nextStep: "รอ CMO สรุปข้อมูลรายบละเอียด และราคา เสนอ CEO ภายหลัง", owner: "CMO", receive: "3/16", due: "-" },
+            { project: "LOTTERY PLUS", bu: "HR team", task: "สรุป แผนโครงสร้าง TEAM", detail: "อยากได้การ Training พนักงานควรรู้อะไรบ้าง ทำให้พนักงานที่เข้าใหม่และรวมถึงพนักงานเก่าควรรู้อะไรบ้าง มองเป้าหมายทางเดียวกันไหม แล้วจะเสร็จเมื่อไหร่ ขอ Timeline และ Plan และ เงินเดือนเท่าไหร่ถึงได้เป็น Leader และนำมาอบรบเป็นพิเศษ และเราควรทำอะไรและ พัฒนาอย่างไร ฝากพี่รถตู้", status: "IN PROGRESS", nextStep: "รอคุณ รถตู้ นัด MEETING", owner: "คุณ รถตู้", receive: "3/9", due: "-" },
+            { project: "LOTTERY PLUS", bu: "Performance and Data Team", task: "พี่หนุ่ยการตลาดวันละตอนConsult", detail: "ปรึกษาพี่หนุ่ยมาช่วย Support Team Data and Performance", status: "IN PROGRESS", nextStep: "รอ CMO สรุปข้อมูลรายบละเอียด และราคา เสนอ CEO ภายหลัง เผื่อหาแผนการให้คำปรึกษา ต่อไป", owner: "CMO", receive: "3/16", due: "-" },
             { project: "LOTTERY PLUS", bu: "Performance Team", task: "Update Performance Content", detail: "Recap และ หาSolution พัฒนา Content", status: "IN PROGRESS", nextStep: "นำ Report รายการควรจะปรับปรุงยังไงรูปแบบไหน ให้ Marcom และ Production ทำให้ดีขึ้น", owner: "คุณ เนส", receive: "3/20", due: "-" },
-            { project: "LOTTERY PLUS", bu: "NOKPLUSCLUB", task: "Update and Timeline", detail: "Update Consept Design , Timeline", status: "IN PROGRESS", nextStep: "วางแผน ถ้านำ MVP 1 & 2 มารวมกัน แล้วเสร็จภายในเดือน ตุลาคมได้ไหม หรือจะตัด Feature ไหนออก", owner: "คุณ ต้น DEV", receive: "3/6", due: "-" },
+            { project: "LOTTERY PLUS", bu: "NOKPLUSCLUB", task: "Update and Timeline", detail: "Update Consept Design , Timeline ", status: "IN PROGRESS", nextStep: "นTeam วางแผน ถ้านำ MVP 1 & 2 มารวมกัน แล้วเสร็จภายในเดือน ตุลาคมได้ไหม หรือจะตัด Feature ไหนออก และ จาก Feature ทั้งหมด ชื่อ NOKPLUS CLUB ยัง เหมาะสมอยู่ไหม แล้วจะใช้ชื่ออะไรของ PROJECT นี้", owner: "คุณ ต้น DEV", receive: "3/6", due: "-" },
+
+
+            // 2. MU TODAY
             { project: "MU TODAY", bu: "MU TODAY Community", task: "เน้นไปที่ PARTNER FIRST ก่อน", detail: "หยุดโฟกัส COMMUNITY ชั่วคราว และเน้นไปที่ PARTNER FIRST แล้ว COMMUNITY จะมาเอง", status: "IN PROGRESS", nextStep: "Focus Partnership! Support Partnership (Production + Content)", owner: "Team Mutoday", receive: "3/6", due: "-" },
             { project: "MU TODAY", bu: "ทำนายฝัน", task: "อัปเดตฐานข้อมูลและการทำนาย", detail: "พัฒนา AI ต่อและ ทำ Content on Social", status: "IN PROGRESS", nextStep: "หา Creative และ TIktok", owner: "Team Mutoday", receive: "2/11", due: "-" },
+
+            // 3. OTHERS
             { project: "CHECKIN PLUS", bu: "System", task: "Sale Support & ชำระเงินบัตรเครดิต", detail: "อนุมัติ Sale Support 4 ตำแหน่ง และทำเรื่องการชำระเงินผ่านบัตรเครดิต", status: "IN PROGRESS", nextStep: "Checkin Book (BETA) ขึ้น Beta Web ปลาย มี.ค.", owner: "คุณอิง และ คุณเกน", receive: "2/6", due: "-" },
             { project: "THAIMART", bu: "Business Model", task: "คอนเซปต์ THAIMART = TRUST", detail: "Timeline: Web Beta (เม.ย.) / App (สิ้น พ.ย. 69)", status: "IN PROGRESS", nextStep: "พี่นัทลองวางโครงสร้าง Branding และ Structure แล้วนำมาเสนอภายหลัง", owner: "คุณ นัท MU", receive: "3/6", due: "-" },
             { project: "RIZZ UP", bu: "RIZZ UP", task: "Campaign & Branding", detail: "จัดทำคอนเซปต์และรูปแบบการตลาดใหม่", status: "IN PROGRESS", nextStep: "จัดทำ Branding และ Positioning ใหม่", owner: "Team RizzUp", receive: "3/10", due: "-" },
-            { project: "CASHFLOW GAME", bu: "CASHFLOW GAME", task: "Multi-player System", detail: "พัฒนาระบบการเล่นหลายคนแบบออนไลน์", status: "IN PROGRESS", nextStep: "MARK DEV จะทำ PitchDeck มาเสนออีกที แนวทางจดบริษัท", owner: "คุณ มาร์ค ManaDev", receive: "3/5", due: "-" }
+            { project: "CASHFLOW GAME", bu: "CASHFLOW GAME", task: "Multi-player System", detail: "พัฒนาระบบการเล่นหลายคนแบบออนไลน์", status: "IN PROGRESS", nextStep: "MARK DEV จะทำ PitchDeckมาเสนออีกที แนวทางจดบริษัท", owner: "คุณ มาร์ค ManaDev", receive: "3/5", due: "-" }
         ];
 
         function navigate(id) {
