@@ -470,8 +470,8 @@
             if (isMobile) navigate(1);
             setLoading();
             await loadAndRender();
-            // Auto-refresh ทุก 5 นาที
-            setInterval(loadAndRender, 5 * 60 * 1000);
+            // Auto-refresh ทุก 30 นาที (ข้อมูลอัปเดตหลังประชุม ไม่จำเป็นต้อง refresh บ่อย)
+            setInterval(loadAndRender, 30 * 60 * 1000);
         };
 
         let resizeTimer;
