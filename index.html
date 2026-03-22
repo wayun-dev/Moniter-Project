@@ -178,6 +178,37 @@
 
         .status-inprogress { background: #d97706 !important; color: white !important; }
         .status-rejected { background: #dc2626 !important; color: white !important; }
+        .status-done { background: #16a34a !important; color: white !important; }
+
+        .days-badge { font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 99px; letter-spacing: 0.05em; }
+        .days-badge.urgent { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .days-badge.ok { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+        .days-badge.warning { background: rgba(234,179,8,0.1); color: #fde047; border: 1px solid rgba(234,179,8,0.2); }
+
+        .stale-warning { color: #fb923c !important; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+        /* Mobile floating refresh button */
+        .mobile-refresh-btn {
+            display: none;
+            position: fixed;
+            bottom: 88px;
+            right: 16px;
+            z-index: 999;
+            width: 48px; height: 48px;
+            background: #4f46e5;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(99,102,241,0.5);
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        @media (max-width: 1024px) { .mobile-refresh-btn { display: flex; } }
+        .mobile-refresh-btn.spinning svg { animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .tab-bar {
             display: none;
@@ -267,6 +298,11 @@
             </section>
         </div>
 
+        <!-- Mobile Floating Refresh -->
+        <button class="mobile-refresh-btn" id="mobile-refresh-btn" onclick="mobileRefresh()">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+        </button>
+
         <!-- Mobile Tab Bar -->
         <nav class="tab-bar">
             <button class="tab-item active red" onclick="navigate(1)">
@@ -291,6 +327,7 @@
         const getIsMobile = () => window.innerWidth <= 1024;
         let isMobile = getIsMobile();
         const NOW = dayjs();
+        let lastSuccessfulFetch = null;
 
         // ─── Google Sheets Config ───────────────────────────────────────────────
         const SHEET_ID = "1TLC3VgzmJgOpjfKG5vSxzwP46uGo0Lyc0oVdeY8Koz4";
@@ -304,31 +341,41 @@
             return `${parseInt(m[2]) + 1}/${m[3]}`;
         }
 
-        async function fetchSheetData() {
-            const res = await fetch(SHEET_URL);
-            const text = await res.text();
-            // Strip JSONP wrapper: /*O_o*/\ngoogle.visualization.Query.setResponse({...});
-            const json = JSON.parse(text.replace(/^[^{]+/, '').replace(/\);\s*$/, ''));
-            const rows = json.table.rows;
+        async function fetchSheetData(retries = 3) {
+            for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                    const res = await fetch(SHEET_URL + '&t=' + Date.now()); // bust cache
+                    const text = await res.text();
+                    const json = JSON.parse(text.replace(/^[^{]+/, '').replace(/\);\s*$/, ''));
+                    const rows = json.table.rows;
 
-            let lastProject = "";
-            return rows
-                .filter(row => row.c && row.c[1]?.v) // ต้องมี BU อย่างน้อย
-                .map(row => {
-                    const get = (i) => (row.c[i]?.v != null) ? String(row.c[i].v).trim() : "";
-                    if (get(0)) lastProject = get(0).replace(/^\s+/, '');
-                    return {
-                        project: lastProject,
-                        bu:      get(1),
-                        task:    get(2),
-                        detail:  get(3),
-                        status:  get(4).includes("❌") ? "REJECTED" : "IN PROGRESS",
-                        nextStep: get(5),
-                        owner:   get(6),
-                        receive: parseGvizDate(row.c[7]?.v),
-                        due:     get(8) || "-"
-                    };
-                });
+                    let lastProject = "";
+                    return rows
+                        .filter(row => row.c && row.c[1]?.v)
+                        .map(row => {
+                            const get = (i) => (row.c[i]?.v != null) ? String(row.c[i].v).trim() : "";
+                            if (get(0)) lastProject = get(0).replace(/^\s+/, '');
+                            const statusRaw = get(4);
+                            const status = statusRaw.includes("❌") ? "REJECTED"
+                                         : (statusRaw.includes("✅") || statusRaw.toUpperCase().includes("DONE")) ? "DONE"
+                                         : "IN PROGRESS";
+                            return {
+                                project:  lastProject,
+                                bu:       get(1),
+                                task:     get(2),
+                                detail:   get(3),
+                                status,
+                                nextStep: get(5),
+                                owner:    get(6),
+                                receive:  parseGvizDate(row.c[7]?.v),
+                                due:      get(8) || "-"
+                            };
+                        });
+                } catch (err) {
+                    if (attempt === retries) throw err;
+                    await new Promise(r => setTimeout(r, 5000 * attempt)); // 5s, 10s delay
+                }
+            }
         }
 
         function setLoading() {
@@ -355,21 +402,36 @@
                     !p(i.project).includes("HR")
                 );
 
+                // เรียงตาม Deadline ที่ใกล้สุดก่อน (ไม่มี deadline → ไปท้ายสุด)
+                const sortByDue = (a, b) => {
+                    if (a.due === '-' && b.due === '-') return 0;
+                    if (a.due === '-') return 1;
+                    if (b.due === '-') return -1;
+                    const yr = dayjs().year();
+                    return dayjs(`${yr}/${a.due}`, 'YYYY/M/D').diff(dayjs(`${yr}/${b.due}`, 'YYYY/M/D'));
+                };
+                col1.sort(sortByDue); col2.sort(sortByDue); col3.sort(sortByDue);
+
                 // render พร้อมกันทั้ง 3 column
                 initScroll(1, col1);
                 initScroll(2, col2);
                 initScroll(3, col3);
+                lastSuccessfulFetch = dayjs();
                 lucide.createIcons();
 
                 // ขั้น 3: อัพเดท status bar แยกต่างหาก ไม่ block UI
                 const now = dayjs();
                 document.getElementById('last-update-text').innerHTML =
                     `Live จาก Google Sheets · อัพเดทล่าสุด ${now.format('DD/MM/YY HH:mm')} น. <span class="text-red-500"> >> หากต้องการหยุดอ่าน Card กรุณานำ Cursor Remote ชี้ที่ Card ครับ</span> <span class="text-slate-400">·</span> <span class="text-yellow-400">หากจะเพิ่มข้อมูลหรือ Update Card โปรดติดต่อ WAYU</span>`;
+                document.getElementById('last-update-text').classList.remove('stale-warning');
 
             } catch(e) {
                 console.error("Fetch sheet error:", e);
+                const staleMin = lastSuccessfulFetch ? dayjs().diff(lastSuccessfulFetch, 'minute') : null;
                 document.getElementById('last-update-text').innerHTML =
-                    '<span class="text-red-400">โหลดข้อมูลไม่สำเร็จ — ตรวจสอบว่า Sheet เป็น Public</span>';
+                    `<span class="text-red-400">โหลดข้อมูลไม่สำเร็จ (retry อัตโนมัติทุก 5 วิ)</span>` +
+                    (staleMin ? ` <span class="text-orange-400">— ข้อมูลล่าสุดเมื่อ ${staleMin} นาทีที่แล้ว</span>` : '');
+                document.getElementById('last-update-text').classList.add('stale-warning');
             }
         }
 
@@ -387,6 +449,13 @@
             document.querySelectorAll('.project-column').forEach(p => p.classList.remove('active'));
             document.getElementById(`path-${id}`).classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function mobileRefresh() {
+            const btn = document.getElementById('mobile-refresh-btn');
+            btn.classList.add('spinning');
+            await loadAndRender();
+            btn.classList.remove('spinning');
         }
 
         function toggleFullScreen() {
@@ -424,11 +493,27 @@
             return "theme-slate";
         }
 
+        function getDaysLeft(dueStr) {
+            if (!dueStr || dueStr === '-') return null;
+            const yr = dayjs().year();
+            const due = dayjs(`${yr}/${dueStr}`, 'YYYY/M/D');
+            return due.diff(dayjs(), 'day');
+        }
+
         function createCard(item) {
             const prog = getProgress(item.receive, item.due);
             const theme = getThemeClass(item.project);
-            const statusClass = item.status === "REJECTED" ? "status-rejected" : "status-inprogress";
-            
+            const statusClass = item.status === "REJECTED" ? "status-rejected"
+                              : item.status === "DONE" ? "status-done"
+                              : "status-inprogress";
+            const daysLeft = getDaysLeft(item.due);
+            let daysBadge = '';
+            if (daysLeft !== null) {
+                const cls = daysLeft < 0 ? 'urgent' : daysLeft <= 7 ? 'urgent' : daysLeft <= 14 ? 'warning' : 'ok';
+                const label = daysLeft < 0 ? `เกิน ${Math.abs(daysLeft)} วัน` : daysLeft === 0 ? 'วันนี้!' : `เหลือ ${daysLeft} วัน`;
+                daysBadge = `<span class="days-badge ${cls}">${label}</span>`;
+            }
+
             return `
                 <div class="project-card p-5 shadow-2xl ${theme} mb-2">
                     <div class="flex justify-between items-start mb-3">
@@ -437,9 +522,12 @@
                             <p class="text-[9px] font-bold text-slate-500 uppercase mb-2">${item.bu}</p>
                             <h3 class="text-base font-bold text-white leading-tight">${item.task}</h3>
                         </div>
-                        <span class="text-[8px] font-black px-2 py-1 rounded-full ${statusClass} tracking-widest uppercase">
-                            ${item.status}
-                        </span>
+                        <div class="flex flex-col items-end gap-1">
+                            <span class="text-[8px] font-black px-2 py-1 rounded-full ${statusClass} tracking-widest uppercase">
+                                ${item.status}
+                            </span>
+                            ${daysBadge}
+                        </div>
                     </div>
 
                     <div class="mb-4 text-[11px] text-slate-400 font-medium border-l-2 border-white/10 pl-3 leading-relaxed">
