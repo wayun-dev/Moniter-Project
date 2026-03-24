@@ -496,8 +496,8 @@
         function getDaysLeft(dueStr) {
             if (!dueStr || dueStr === '-') return null;
             const yr = dayjs().year();
-            const due = dayjs(`${yr}/${dueStr}`, 'YYYY/M/D');
-            return due.diff(dayjs(), 'day');
+            const due = dayjs(`${yr}/${dueStr}`, 'YYYY/M/D').startOf('day');
+            return due.diff(dayjs().startOf('day'), 'day');
         }
 
         function createCard(item) {
